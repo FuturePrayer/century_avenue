@@ -16,12 +16,6 @@ Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are suppo
 2. Example of the `application.yaml` configuration file: (Please note that the default configuration file in the build does not contain any API integration parameters, and running it directly will not be able to call any large models!)
 
 ```yaml
-spring:
-  application:
-    name: century_avenue
-# Port number
-server:
-  port: 4523
 # zhipuai GLM4
 glm-4:
   api-key: "glm-4 api-key"
@@ -40,15 +34,20 @@ spark35-max:
   app_id: "spark35-max app_id"
   api-secret: "spark35-max api-secret"
   api-key: "spark35-max api-key"
+# Alibaba Qwen-Long
+qwen-long:
+  api-key: "qwen-long api-key"
 
 ```
 
 3. Execute the command `java -jar`
 ```bash
-java -jar century_avenue-0.0.1-SNAPSHOT.jar --spring.config.location=file:/path/to/application.yaml
+java -jar century_avenue-0.0.1-SNAPSHOT.jar --spring.config.import=file:/path/to/application.yaml
 
 ```
-Note that the jar name should be modified to the name of the build you downloaded.
+Note that the jar name should be modified to the name of the build you downloaded;
+
+4. Visit `http://localhost:4523/v1/models` to see the list of currently supported large models **(Note: Only large models with all docking parameters configured will be displayed in the model list)** .
 
 ### Build from source code
 0. Prerequisite:
@@ -70,7 +69,7 @@ mvn package
 ```
 
 ## **Limitations**
-- Currently, there are few large models supported, and my energy and financial resources are prioritized. I cannot purchase every commercial large model or run every open source large model for adaptation. Therefore, I welcome all big names to participate and contribute;
+- Currently, there are few large models supported, and my energy and financial resources are prioritized. I cannot purchase every commercial large model or run every open source large model for adaptation. Therefore, I welcome everyone to participate and contribute;
 - Currently, except for GLM4 (doubtful, theoretically possible, not verified), function calls are not supported.
 
 ## **Participation and Contribution**

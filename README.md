@@ -19,12 +19,6 @@
 2、`application.yaml`配置文件示例：（请注意，构建内默认配置文件中不包含任何api对接参数，直接运行是无法调用任何一种大模型的哦！）
 
 ```yaml
-spring:
-  application:
-    name: century_avenue
-# 端口号
-server:
-  port: 4523
 # 智谱清言GLM4
 glm-4:
   api-key: "glm-4 api-key"
@@ -43,15 +37,20 @@ spark35-max:
   app_id: "spark35-max app_id"
   api-secret: "spark35-max api-secret"
   api-key: "spark35-max api-key"
+# 阿里巴巴Qwen-Long
+qwen-long:
+  api-key: "qwen-long api-key"
 
 ```
 
 3、执行`java -jar`命令
 ```bash
-java -jar century_avenue-0.0.1-SNAPSHOT.jar --spring.config.location=file:/path/to/application.yaml
+java -jar century_avenue-0.0.1-SNAPSHOT.jar --spring.config.import=file:/path/to/application.yaml
 
 ```
-注意将jar名称修改为你下载的构建的名称。
+注意将jar名称修改为你下载的构建的名称；
+
+4、访问 `http://localhost:4523/v1/models` ，即可看到当前支持的大模型列表 **（注意：仅有配置了全部对接参数的大模型才会显示在模型列表中）**。
 
 ### 从源代码构建
 0、前提条件：

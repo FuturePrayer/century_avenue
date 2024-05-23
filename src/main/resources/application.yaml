@@ -1,5 +1,8 @@
 spring:
   application:
     name: century_avenue
+  ai:
+    openai:
+      api-key: "111"
 server:
   port: 4523

@@ -40,7 +40,6 @@ public class OpenAIController {
      */
     @PostMapping("/chat/completions")
     public ResponseEntity<Flux<String>> completions(@RequestBody OpenAiApi.ChatCompletionRequest chatCompletionRequest) {
-        System.out.println(JacksonUtil.tryParse(chatCompletionRequest));
         Optional<LlmService> first = llmServices.stream()
                 .filter(llmService -> llmService.available() && llmService.model().equals(chatCompletionRequest.model()))
                 .findFirst();

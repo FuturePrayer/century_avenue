@@ -138,8 +138,16 @@ public class SparkProServiceImpl implements LlmService {
                     .filter(content -> !WEB_SOCKET_STREAMING_COMPLETED.equals(content))
                     .map(sparkResp -> {
                         SparkResp resp = ModelOptionsUtils.jsonToObject(sparkResp, SparkResp.class);
+                        //保存sid
                         temp.putIfAbsent("sid", resp.header().sid());
-                        return resp.payload().choices().text().get(0).content();
+
+                        //保存usage信息
+                        SparkResp.UsageText usage = resp.payload().usage();
+                        temp.put("completionTokens", String.valueOf(usage.completion_tokens()));
+                        temp.put("promptTokens", String.valueOf(usage.prompt_tokens()));
+                        temp.put("totalTokens", String.valueOf(usage.total_tokens()));
+
+                        return resp.payload().choices().text().getFirst().content();
                     })
                     .reduce("", (acc, curr) -> acc + curr)
                     .subscribe(content -> {
@@ -156,7 +164,11 @@ public class SparkProServiceImpl implements LlmService {
                                 this.model(),
                                 null,
                                 null,
-                                null
+                                new OpenAiApi.Usage(
+                                        Integer.valueOf(temp.get("completionTokens")),
+                                        Integer.valueOf(temp.get("promptTokens")),
+                                        Integer.valueOf(temp.get("totalTokens"))
+                                )
                         ));
                         sink.complete();
                     }, sink::error); // Propagate errors to the sink
