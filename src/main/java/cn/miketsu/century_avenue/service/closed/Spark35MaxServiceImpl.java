@@ -190,7 +190,7 @@ public class Spark35MaxServiceImpl implements LlmService {
         @Override
         public Mono<Void> handle(WebSocketSession session) {
             SparkReq.Header header = new SparkReq.Header(appId, chatRequest.user());
-            SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("general", chatRequest.temperature(), chatRequest.maxTokens()));
+            SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("generalv3.5", chatRequest.temperature(), chatRequest.maxTokens()));
             SparkReq.Payload payload = new SparkReq.Payload(new SparkReq.Message(chatRequest.messages().stream().map(message -> new SparkReq.MessageText(message.role().name().toLowerCase(), message.content())).collect(Collectors.toList())));
             SparkReq sparkReq = new SparkReq(header, chatParameter, payload);
 
@@ -198,6 +198,7 @@ public class Spark35MaxServiceImpl implements LlmService {
                     .thenMany(session.receive()
                             .map(WebSocketMessage::getPayloadAsText)
                             .doOnComplete(() -> sink.tryEmitNext(WEB_SOCKET_STREAMING_COMPLETED))
+                            .doOnEach(System.out::println)
                             .doOnNext(sink::tryEmitNext)
                             .doOnComplete(sink::tryEmitComplete)
                     )
