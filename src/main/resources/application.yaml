@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: century_avenue
+server:
+  port: 4523
