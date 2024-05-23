@@ -20,6 +20,7 @@ import java.util.Optional;
 /**
  * @author sihuangwlp
  * @date 2024/5/22
+ * @since 0.0.1-SNAPSHOT
  */
 @RestController
 @RequestMapping("/v1")
@@ -28,11 +29,20 @@ public class OpenAIController {
     @Autowired
     private List<LlmService> llmServices;
 
+    /**
+     * 聊天
+     *
+     * @param chatCompletionRequest openai风格的请求参数
+     * @return openai风格的响应参数
+     * @author sihuangwlp
+     * @date 2024/5/22
+     * @since 0.0.1-SNAPSHOT
+     */
     @PostMapping("/chat/completions")
     public ResponseEntity<Flux<String>> completions(@RequestBody OpenAiApi.ChatCompletionRequest chatCompletionRequest) {
         System.out.println(JacksonUtil.tryParse(chatCompletionRequest));
         Optional<LlmService> first = llmServices.stream()
-                .filter(llmService -> llmService.model().equals(chatCompletionRequest.model()))
+                .filter(llmService -> llmService.available() && llmService.model().equals(chatCompletionRequest.model()))
                 .findFirst();
         if (first.isEmpty()) {
             throw new RuntimeException("model not found");
@@ -56,6 +66,14 @@ public class OpenAIController {
         }
     }
 
+    /**
+     * 可用的模型列表
+     *
+     * @return openai风格的模型列表响应参数
+     * @author sihuangwlp
+     * @date 2024/5/22
+     * @since 0.0.1-SNAPSHOT
+     */
     @GetMapping(value = "/models", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> models() {
         String created = String.valueOf(System.currentTimeMillis() / 1000);
@@ -64,6 +82,7 @@ public class OpenAIController {
                             put("object", "list");
                             put("data",
                                     llmServices.stream()
+                                            .filter(LlmService::available)
                                             .map(llm -> new HashMap<String, String>() {{
                                                 put("id", llm.model());
                                                 put("object", "model");

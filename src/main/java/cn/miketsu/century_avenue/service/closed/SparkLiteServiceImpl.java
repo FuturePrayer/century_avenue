@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
  *
  * @author sihuangwlp
  * @date 2024/5/22
+ * @since 0.0.1-SNAPSHOT
  */
 @Service
 public class SparkLiteServiceImpl implements LlmService {
@@ -58,6 +59,16 @@ public class SparkLiteServiceImpl implements LlmService {
     @Override
     public String model() {
         return "spark-lite";
+    }
+
+    @Override
+    public Boolean available() {
+        return apiSecret != null
+                && !apiSecret.isBlank()
+                && apiKey != null
+                && !apiKey.isBlank()
+                && appId != null
+                && !appId.isBlank();
     }
 
     @Override

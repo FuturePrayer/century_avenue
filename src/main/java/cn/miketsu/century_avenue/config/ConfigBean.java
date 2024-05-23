@@ -9,6 +9,7 @@ import org.springframework.web.reactive.socket.client.WebSocketClient;
 /**
  * @author sihuangwlp
  * @date 2024/5/22
+ * @since 0.0.1-SNAPSHOT
  */
 @Configuration
 public class ConfigBean {

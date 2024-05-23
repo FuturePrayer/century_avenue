@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
  *
  * @author sihuangwlp
  * @date 2024/5/22
+ * @since 0.0.1-SNAPSHOT
  */
 @Service
 public class Spark35MaxServiceImpl implements LlmService {
@@ -59,6 +60,16 @@ public class Spark35MaxServiceImpl implements LlmService {
     @Override
     public String model() {
         return "spark35-max";
+    }
+
+    @Override
+    public Boolean available() {
+        return apiSecret != null
+                && !apiSecret.isBlank()
+                && apiKey != null
+                && !apiKey.isBlank()
+                && appId != null
+                && !appId.isBlank();
     }
 
     @Override

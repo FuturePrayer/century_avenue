@@ -22,6 +22,7 @@ import java.util.function.Predicate;
  *
  * @author sihuangwlp
  * @date 2024/5/22
+ * @since 0.0.1-SNAPSHOT
  */
 @Service
 public class GLM4ServiceImpl implements LlmService {
@@ -51,6 +52,11 @@ public class GLM4ServiceImpl implements LlmService {
     @Override
     public String model() {
         return "glm-4";
+    }
+
+    @Override
+    public Boolean available() {
+        return apiKey != null && !apiKey.isBlank();
     }
 
     @Override

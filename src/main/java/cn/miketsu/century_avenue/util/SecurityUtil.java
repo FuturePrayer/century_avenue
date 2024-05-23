@@ -8,6 +8,7 @@ import java.util.Base64;
 /**
  * @author sihuangwlp
  * @date 2024/5/22
+ * @since 0.0.1-SNAPSHOT
  */
 public class SecurityUtil {
 
