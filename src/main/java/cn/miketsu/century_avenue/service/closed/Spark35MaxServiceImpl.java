@@ -166,11 +166,13 @@ public class Spark35MaxServiceImpl implements LlmService {
                                 this.model(),
                                 null,
                                 null,
-                                temp.containsKey("completionTokens") && temp.containsKey("promptTokens") && temp.containsKey("totalTokens") ? null : new OpenAiApi.Usage(
+                                temp.containsKey("completionTokens") && temp.containsKey("promptTokens") && temp.containsKey("totalTokens")
+                                        ? new OpenAiApi.Usage(
                                         Integer.valueOf(temp.get("completionTokens")),
                                         Integer.valueOf(temp.get("promptTokens")),
                                         Integer.valueOf(temp.get("totalTokens"))
                                 )
+                                        : null
                         ));
                         sink.complete();
                     }, sink::error); // Propagate errors to the sink
