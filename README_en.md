@@ -1,5 +1,5 @@
 # **Century_Avenue**
-A tool that maps the API of commercial or open-source large language models to OpenAi-style APIs, named after the "Century Avenue" subway station in Shanghai, which has the highest passenger flow among all stations.
+A tool that maps the API of commercial or open-source large language models to OpenAI-style APIs, named after the "Century Avenue" subway station in Shanghai, which has the highest passenger flow among all stations.
 
 ## **Features**
 Currently, it supports the following AI language models: iFLYTEK GLM4, iFLYTEK Spark Lite, iFLYTEK Spark Pro, and iFLYTEK Spark 3.5Max
@@ -16,6 +16,9 @@ Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are suppo
 2. Example of the `application.yaml` configuration file: (Please note that the default configuration file in the build does not contain any API integration parameters, and running it directly will not be able to call any large models!)
 
 ```yaml
+# Enable authentication, add Authorization to the request header, and follow the same rules as OpenAI, with the content being "Bearer"+api-key
+# If this option is not configured, authorization will not be verified, but we strongly recommend enabling it
+api-key: "my api-key"
 # zhipuai GLM4
 glm-4:
   api-key: "glm-4 api-key"

@@ -2,7 +2,7 @@
 
 *Read this in [English](README_en.md).*
 
-一个将商业或开源大语言模型的api映射为OpenAi风格的api的工具，名称取自上海换乘客流最大地铁站“世纪大道”。
+一个将商业或开源大语言模型的api映射为OpenAI风格的api的工具，名称取自上海换乘客流最大地铁站“世纪大道”。
 
 ## **特征**
 - 1、目前支持智谱清言GLM4、讯飞星火Lite、讯飞星火Pro、讯飞星火3.5Max
@@ -19,6 +19,9 @@
 2、`application.yaml`配置文件示例：（请注意，构建内默认配置文件中不包含任何api对接参数，直接运行是无法调用任何一种大模型的哦！）
 
 ```yaml
+# 开启鉴权，请求头中需添加Authorization，规则与OpenAI一致，内容为"Bearer "+api-key
+# 不配置此项则不检验授权，但我们强烈推荐开启
+api-key: "my api-key"
 # 智谱清言GLM4
 glm-4:
   api-key: "glm-4 api-key"
