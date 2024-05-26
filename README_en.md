@@ -13,7 +13,7 @@ Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are suppo
 
 1. Download the latest jar build from the [Releases](https://github.com/FuturePrayer/century_avenue/releases) page;
 
-2. Example of the `application.yaml` configuration file: (Please note that the default configuration file in the build does not contain any API integration parameters, and running it directly will not be able to call any large models!)
+2. Example of the `application.yaml` configuration file: (Please note that the following parameters are not required, but the default configuration file in the build does not include any API docking parameters. Running directly will not be able to call any large model!)
 
 ```yaml
 # Enable authentication, add Authorization to the request header, and follow the same rules as OpenAI, with the content being "Bearer"+api-key
@@ -40,6 +40,12 @@ spark35-max:
 # Alibaba Qwen-Long
 qwen-long:
   api-key: "qwen-long api-key"
+# The alias mapping of large models can be configured multiple times, and multiple aliases can point to the same available large model. All available models and their corresponding aliases will be displayed in /v1/models
+century-avenue:
+  model-mapping:
+    gpt3.5: "spark-lite"
+    gpt4: "spark-lite"
+    gpt4o: "spark-pro"
 
 ```
 

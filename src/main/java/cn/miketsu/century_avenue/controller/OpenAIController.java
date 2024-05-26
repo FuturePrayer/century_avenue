@@ -1,5 +1,6 @@
 package cn.miketsu.century_avenue.controller;
 
+import cn.miketsu.century_avenue.config.DockingConfig;
 import cn.miketsu.century_avenue.service.LlmService;
 import cn.miketsu.century_avenue.util.JacksonUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -15,7 +16,10 @@ import reactor.core.publisher.Sinks;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author sihuangwlp
@@ -29,6 +33,9 @@ public class OpenAIController {
     @Autowired
     private List<LlmService> llmServices;
 
+    @Autowired
+    private DockingConfig dockingConfig;
+
     /**
      * 聊天
      *
@@ -40,8 +47,16 @@ public class OpenAIController {
      */
     @PostMapping("/chat/completions")
     public ResponseEntity<Flux<String>> completions(@RequestBody OpenAiApi.ChatCompletionRequest chatCompletionRequest) {
+        //模型名称映射
+        String model;
+        if (dockingConfig.getModelMapping() != null && dockingConfig.getModelMapping().containsKey(chatCompletionRequest.model())) {
+            model = dockingConfig.getModelMapping().get(chatCompletionRequest.model());
+        } else {
+            model = chatCompletionRequest.model();
+        }
+
         Optional<LlmService> first = llmServices.stream()
-                .filter(llmService -> llmService.available() && llmService.model().equals(chatCompletionRequest.model()))
+                .filter(llmService -> llmService.available() && llmService.model().equals(model))
                 .findFirst();
         if (first.isEmpty()) {
             throw new RuntimeException("model not found");
@@ -76,14 +91,23 @@ public class OpenAIController {
     @GetMapping(value = "/models", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> models() {
         String created = String.valueOf(System.currentTimeMillis() / 1000);
+        //统计可用的模型列表
+        List<String> modelList = llmServices.stream()
+                .filter(LlmService::available)
+                .map(LlmService::model)
+                .collect(Collectors.toList());
+        //添加上他们的别名
+        modelList.addAll(modelList.stream()
+                .map(this::getAliasOfModel)
+                .filter(s -> s != null && !s.isEmpty())
+                .flatMap(List::stream).toList());
         return Mono.just(JacksonUtil.tryParse(
                         new HashMap<String, Object>() {{
                             put("object", "list");
                             put("data",
-                                    llmServices.stream()
-                                            .filter(LlmService::available)
+                                    modelList.stream()
                                             .map(llm -> new HashMap<String, String>() {{
-                                                put("id", llm.model());
+                                                put("id", llm);
                                                 put("object", "model");
                                                 put("created", created);
                                                 put("owned_by", "system");
@@ -93,5 +117,20 @@ public class OpenAIController {
                         }}
                 )
         );
+    }
+
+    /**
+     * 获取指定模型的别名
+     *
+     * @param model 指定的模型名称
+     * @return 模型别名列表
+     * @author sihuangwlp
+     * @since 0.0.4-SNAPSHOT
+     */
+    private List<String> getAliasOfModel(String model) {
+        return dockingConfig.getModelMapping().entrySet().stream()
+                .filter(entry -> entry.getValue().equals(model))
+                .map(Map.Entry::getKey)
+                .toList();
     }
 }

@@ -16,7 +16,7 @@
 
 1、从[Releases](https://github.com/FuturePrayer/century_avenue/releases)页面下载最新版jar构建；
 
-2、`application.yaml`配置文件示例：（请注意，构建内默认配置文件中不包含任何api对接参数，直接运行是无法调用任何一种大模型的哦！）
+2、`application.yaml`配置文件示例：（请注意，以下参数均为非必填项，但构建内默认配置文件中不包含任何api对接参数，直接运行是无法调用任何一种大模型的哦！）
 
 ```yaml
 # 开启鉴权，请求头中需添加Authorization，规则与OpenAI一致，内容为"Bearer "+api-key
@@ -43,6 +43,12 @@ spark35-max:
 # 阿里巴巴Qwen-Long
 qwen-long:
   api-key: "qwen-long api-key"
+# 大模型别名映射，可以配置多个，可以多个别名指向同一个可用的大模型，所有可用的模型及其对应的别名都会显示在/v1/models中
+century-avenue:
+  model-mapping:
+    gpt3.5: "spark-lite"
+    gpt4: "spark-lite"
+    gpt4o: "spark-pro"
 
 ```
 
