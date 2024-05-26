@@ -40,6 +40,22 @@ spark35-max:
 # Alibaba Qwen-Long
 qwen-long:
   api-key: "qwen-long api-key"
+# Baidu ERNIE-Tiny-8K
+ernie-tiny-8k:
+  api-key: "ernie-tiny-8k api-key"
+  secret-key: "ernie-tiny-8k secret-key"
+# Baidu ERNIE-Lite-8K-0308
+ernie-lite-8k:
+  api-key: "ernie-lite-8k api-key"
+  secret-key: "ernie-lite-8k secret-key"
+# Baidu ERNIE-Speed-8K
+ernie-speed:
+  api-key: "ernie-speed api-key"
+  secret-key: "ernie-speed secret-key"
+# Baidu ERNIE-Speed-128K
+ernie-speed-128k:
+  api-key: "ernie-speed-128k api-key"
+  secret-key: "ernie-speed-128k secret-key"
 # The alias mapping of large models can be configured multiple times, and multiple aliases can point to the same available large model. All available models and their corresponding aliases will be displayed in /v1/models
 century-avenue:
   model-mapping:

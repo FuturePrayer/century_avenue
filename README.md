@@ -43,6 +43,22 @@ spark35-max:
 # 阿里巴巴Qwen-Long
 qwen-long:
   api-key: "qwen-long api-key"
+# 百度ERNIE-Tiny-8K
+ernie-tiny-8k:
+  api-key: "ernie-tiny-8k api-key"
+  secret-key: "ernie-tiny-8k secret-key"
+# 百度ERNIE-Lite-8K-0308
+ernie-lite-8k:
+  api-key: "ernie-lite-8k api-key"
+  secret-key: "ernie-lite-8k secret-key"
+# 百度ERNIE-Speed-8K
+ernie-speed:
+  api-key: "ernie-speed api-key"
+  secret-key: "ernie-speed secret-key"
+# 百度ERNIE-Speed-128K
+ernie-speed-128k:
+  api-key: "ernie-speed-128k api-key"
+  secret-key: "ernie-speed-128k secret-key"
 # 大模型别名映射，可以配置多个，可以多个别名指向同一个可用的大模型，所有可用的模型及其对应的别名都会显示在/v1/models中
 century-avenue:
   model-mapping:
