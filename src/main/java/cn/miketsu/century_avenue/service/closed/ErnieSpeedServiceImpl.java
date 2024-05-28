@@ -1,9 +1,11 @@
 package cn.miketsu.century_avenue.service.closed;
 
+import cn.miketsu.century_avenue.function.ErnieConvert;
 import cn.miketsu.century_avenue.record.ErnieAuthResp;
 import cn.miketsu.century_avenue.record.ErnieReq;
 import cn.miketsu.century_avenue.record.ErnieResp;
 import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.util.HttpUtil;
 import cn.miketsu.century_avenue.util.JacksonUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -27,7 +29,7 @@ import java.util.*;
  * @since 0.0.4-SNAPSHOT
  */
 @Service
-public class ErnieSpeedServiceImpl implements LlmService {
+public class ErnieSpeedServiceImpl extends ErnieConvert {
 
     @Value("${ernie-speed.api-key:}")
     private String apiKey;
@@ -64,9 +66,9 @@ public class ErnieSpeedServiceImpl implements LlmService {
         WebClient.builder()
                 .build()
                 .post()
-                .uri(String.format(baseUrl, getAccessToken()))
+                .uri(String.format(baseUrl, getAccessToken(authUrl, apiKey, secretKey)))
                 .header("Content-Type", "application/json")
-                .body(Mono.just(convert(chatRequest)), ErnieReq.class)
+                .body(Mono.just(convertReq(chatRequest)), ErnieReq.class)
                 .retrieve()
                 .bodyToFlux(String.class)
                 .map(content -> ModelOptionsUtils.jsonToObject(content, ErnieResp.class))
@@ -100,61 +102,12 @@ public class ErnieSpeedServiceImpl implements LlmService {
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
-        return Flux.just(convert(Objects.requireNonNull(RestClient.builder()
-                .build()
-                .post()
-                .uri(String.format(baseUrl, getAccessToken()))
-                .header("Content-Type", "application/json")
-                .body(JacksonUtil.tryParse(convert(chatRequest)))
-                .retrieve()
-                .body(ErnieResp.class))));
-    }
-
-    private String getAccessToken() {
-        RestClient restClient = RestClient.builder().baseUrl(String.format(authUrl, apiKey, secretKey)).build();
-        ErnieAuthResp authResp = restClient.post()
-                .contentType(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .body(ErnieAuthResp.class);
-        if (authResp == null) {
-            throw new RuntimeException("ERNIE Tiny auth failed.");
-        }
-        return authResp.access_token();
-    }
-
-    private ErnieReq convert(OpenAiApi.ChatCompletionRequest chatCompletionRequest) {
-        List<ErnieReq.Message> list = chatCompletionRequest.messages().stream()
-                .filter(message -> OpenAiApi.ChatCompletionMessage.Role.USER.name().equalsIgnoreCase(message.role().name()) || OpenAiApi.ChatCompletionMessage.Role.ASSISTANT.name().equalsIgnoreCase(message.role().name()))
-                .map(message -> new ErnieReq.Message(message.role().name().toLowerCase(), message.content()))
-                .toList();
-
-        Optional<OpenAiApi.ChatCompletionMessage> system = chatCompletionRequest.messages().stream()
-                .filter(message -> OpenAiApi.ChatCompletionMessage.Role.SYSTEM.name().equalsIgnoreCase(message.role().name()))
-                .findFirst();
-
-        return new ErnieReq(list,
-                chatCompletionRequest.stream(),
-                chatCompletionRequest.temperature(),
-                chatCompletionRequest.topP(),
-                chatCompletionRequest.frequencyPenalty(),
-                system.map(OpenAiApi.ChatCompletionMessage::content).orElse(null),
-                null,
-                chatCompletionRequest.maxTokens(),
-                chatCompletionRequest.user()
-        );
-    }
-
-    private OpenAiApi.ChatCompletion convert(ErnieResp ernieResp) {
-        if (ernieResp.error_code() != null) {
-            throw new RuntimeException(ernieResp.error_msg());
-        }
-        return new OpenAiApi.ChatCompletion(ernieResp.id(),
-                Collections.singletonList(new OpenAiApi.ChatCompletion.Choice(OpenAiApi.ChatCompletionFinishReason.STOP, ernieResp.sentence_id(), new OpenAiApi.ChatCompletionMessage(ernieResp.result(), OpenAiApi.ChatCompletionMessage.Role.ASSISTANT), null)),
-                ernieResp.created(),
-                this.model(),
-                null,
-                ernieResp.object(),
-                ernieResp.usage() == null ? null : new OpenAiApi.Usage(ernieResp.usage().completion_tokens(), ernieResp.usage().prompt_tokens(), ernieResp.usage().total_tokens())
+        return Flux.just(
+                HttpUtil.post()
+                        .url(String.format(baseUrl, getAccessToken(authUrl, apiKey, secretKey)))
+                        .header("Content-Type", "application/json")
+                        .body(JacksonUtil.tryParse(convertReq(chatRequest)))
+                        .resp(ErnieResp.class, this::convertResp)
         );
     }
 }

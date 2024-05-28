@@ -14,7 +14,7 @@ import java.util.TimeZone;
  * @date 2024/5/22
  * @since 0.0.1-SNAPSHOT
  */
-public class SparkAuthUtil {
+public final class SparkAuthUtil {
 
     private static final String tmp_template = """
             host: spark-api.xf-yun.com

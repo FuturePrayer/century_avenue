@@ -10,7 +10,7 @@ import java.util.Base64;
  * @date 2024/5/22
  * @since 0.0.1-SNAPSHOT
  */
-public class SecurityUtil {
+public final class SecurityUtil {
 
     /**
      * Base64编码

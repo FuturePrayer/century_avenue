@@ -12,7 +12,7 @@ import java.util.concurrent.Callable;
  * @date 2024/5/22
  * @since 0.0.1-SNAPSHOT
  */
-public class JacksonUtil {
+public final class JacksonUtil {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

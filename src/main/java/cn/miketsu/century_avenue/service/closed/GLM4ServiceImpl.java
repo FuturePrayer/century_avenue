@@ -1,6 +1,7 @@
 package cn.miketsu.century_avenue.service.closed;
 
 import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.util.HttpUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiStreamFunctionCallingHelper;
@@ -111,11 +112,12 @@ public class GLM4ServiceImpl implements LlmService {
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
-        return Flux.just(Objects.requireNonNull(this.restClient.post()
-                .uri("/v4/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
-                .body(chatRequest)
-                .retrieve()
-                .body(OpenAiApi.ChatCompletion.class)));
+        return Flux.just(
+                HttpUtil.post()
+                        .url("/v4/chat/completions")
+                        .header("Authorization", "Bearer " + apiKey)
+                        .body(chatRequest)
+                        .resp(OpenAiApi.ChatCompletion.class)
+        );
     }
 }
