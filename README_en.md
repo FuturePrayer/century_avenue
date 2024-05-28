@@ -102,8 +102,8 @@ mvn package
 ```
 
 ## **Limitations**
-- Currently, there are few large models supported, and my energy and financial resources are prioritized. I cannot purchase every commercial large model or run every open source large model for adaptation. Therefore, I welcome everyone to participate and contribute;
-- Currently, except for GLM4 (doubtful, theoretically possible, not verified), function calls are not supported.
+- The current support for large models is limited. Due to my limited energy and financial resources, I am unable to purchase every commercial large model or run every open-source large model for adaptation. Therefore, I welcome everyone to contribute;
+- Currently, function calls are not supported.
 
 ## **Participation and Contribution**
 - The implementation class of the open source large model should be placed in the `cn.miketsu.century_avenue.service.open` package, and the commercial closed source large model should be placed in the `cn.miketsu.century_avenue.service.closed` package;
