@@ -59,6 +59,14 @@ ernie-speed:
 ernie-speed-128k:
   api-key: "ernie-speed-128k api-key"
   secret-key: "ernie-speed-128k secret-key"
+# 百度ERNIE-3.5-8K-Preview
+ernie-3.5-8k-preview:
+  api-key: "ernie-3.5-8k-preview api-key"
+  secret-key: "ernie-3.5-8k-preview secret-key"
+# 百度ERNIE-4.0-8K-Preview
+ernie-4.0-8k-preview:
+  api-key: "ernie-4.0-8k-preview api-key"
+  secret-key: "ernie-4.0-8k-preview secret-key"
 # 大模型别名映射，可以配置多个，可以多个别名指向同一个可用的大模型，所有可用的模型及其对应的别名都会显示在/v1/models中
 century-avenue:
   model-mapping:

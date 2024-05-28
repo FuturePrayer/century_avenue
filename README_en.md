@@ -56,6 +56,14 @@ ernie-speed:
 ernie-speed-128k:
   api-key: "ernie-speed-128k api-key"
   secret-key: "ernie-speed-128k secret-key"
+# Baidu ERNIE-3.5-8K-Preview
+ernie-3.5-8k-preview:
+  api-key: "ernie-3.5-8k-preview api-key"
+  secret-key: "ernie-3.5-8k-preview secret-key"
+# Baidu ERNIE-4.0-8K-Preview
+ernie-4.0-8k-preview:
+  api-key: "ernie-4.0-8k-preview api-key"
+  secret-key: "ernie-4.0-8k-preview secret-key"
 # The alias mapping of large models can be configured multiple times, and multiple aliases can point to the same available large model. All available models and their corresponding aliases will be displayed in /v1/models
 century-avenue:
   model-mapping:
