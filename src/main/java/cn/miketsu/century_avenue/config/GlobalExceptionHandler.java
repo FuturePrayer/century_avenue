@@ -7,6 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
+import reactor.util.Logger;
+import reactor.util.Loggers;
 
 /**
  * 全局异常处理
@@ -19,6 +21,8 @@ import reactor.core.publisher.Mono;
 @Order(-2)
 public class GlobalExceptionHandler implements WebExceptionHandler {
 
+    private static final Logger log = Loggers.getLogger(GlobalExceptionHandler.class);
+
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         if (ex instanceof RuntimeException) {
@@ -29,11 +33,13 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
     }
 
     private Mono<Void> handleRuntimeException(RuntimeException ex, ServerWebExchange exchange) {
+        log.error("运行时异常！", ex);
         exchange.getResponse().setStatusCode(HttpStatus.BAD_REQUEST);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(JacksonUtil.tryParse(new ErrorResponse(new ErrorResponse.Error(-1, ex.getMessage()))).getBytes())));
     }
 
     private Mono<Void> handleDefaultException(Throwable ex, ServerWebExchange exchange) {
+        log.error("程序出现异常！", ex);
         exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap("An unexpected error occurred".getBytes())));
     }

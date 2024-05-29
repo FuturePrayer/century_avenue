@@ -14,7 +14,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -114,7 +113,7 @@ public class GLM4ServiceImpl implements LlmService {
 
         return Flux.just(
                 HttpUtil.post()
-                        .url("/v4/chat/completions")
+                        .url(BASE_URL + "/v4/chat/completions")
                         .header("Authorization", "Bearer " + apiKey)
                         .body(chatRequest)
                         .resp(OpenAiApi.ChatCompletion.class)

@@ -2,6 +2,7 @@ package cn.miketsu.century_avenue;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import reactor.util.Loggers;
 
 /**
  * @author sihuangwlp
@@ -12,6 +13,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CenturyAvenueApplication {
 
     public static void main(String[] args) {
+        Loggers.useSl4jLoggers();
         SpringApplication.run(CenturyAvenueApplication.class, args);
     }
 

@@ -13,13 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
+import reactor.util.Logger;
+import reactor.util.Loggers;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author sihuangwlp
@@ -29,6 +27,8 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/v1")
 public class OpenAIController {
+
+    private static final Logger log = Loggers.getLogger(OpenAIController.class);
 
     @Autowired
     private List<LlmService> llmServices;
@@ -47,6 +47,7 @@ public class OpenAIController {
      */
     @PostMapping("/chat/completions")
     public ResponseEntity<Flux<String>> completions(@RequestBody OpenAiApi.ChatCompletionRequest chatCompletionRequest) {
+        log.info("聊天补全接口，传入报文：{}", JacksonUtil.tryParse(chatCompletionRequest));
         //模型名称映射
         String model;
         if (dockingConfig.getModelMapping() != null && dockingConfig.getModelMapping().containsKey(chatCompletionRequest.model())) {
@@ -65,9 +66,11 @@ public class OpenAIController {
             Sinks.Many<String> sink = Sinks.many().replay().latest();
             Flux<String> flux = first.get().stream(chatCompletionRequest).map(JacksonUtil::tryParse);
             flux.doOnComplete(() -> {
-                sink.tryEmitNext("[DONE]");
-                sink.tryEmitComplete();
-            }).subscribe(sink::tryEmitNext);
+                        sink.tryEmitNext("[DONE]");
+                        sink.tryEmitComplete();
+                    })
+                    .log(log)
+                    .subscribe(sink::tryEmitNext);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_EVENT_STREAM);
@@ -76,7 +79,7 @@ public class OpenAIController {
             //非流式返回
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            return new ResponseEntity<>(first.get().call(chatCompletionRequest).map(JacksonUtil::tryParse), headers, HttpStatus.OK);
+            return new ResponseEntity<>(first.get().call(chatCompletionRequest).map(JacksonUtil::tryParse).log(log), headers, HttpStatus.OK);
         }
     }
 
@@ -128,6 +131,9 @@ public class OpenAIController {
      * @since 0.0.4-SNAPSHOT
      */
     private List<String> getAliasOfModel(String model) {
+        if (dockingConfig.getModelMapping() == null) {
+            return Collections.emptyList();
+        }
         return dockingConfig.getModelMapping().entrySet().stream()
                 .filter(entry -> entry.getValue().equals(model))
                 .map(Map.Entry::getKey)
