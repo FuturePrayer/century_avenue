@@ -3,7 +3,7 @@ package cn.miketsu.century_avenue.config;
 import cn.miketsu.century_avenue.util.JacksonUtil;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebExceptionHandler;
 import reactor.core.publisher.Mono;
@@ -17,8 +17,8 @@ import reactor.util.Loggers;
  * @date 2024/5/26
  * @since 0.0.4-SNAPSHOT
  */
-@Component
 @Order(-2)
+@RestControllerAdvice
 public class GlobalExceptionHandler implements WebExceptionHandler {
 
     private static final Logger log = Loggers.getLogger(GlobalExceptionHandler.class);

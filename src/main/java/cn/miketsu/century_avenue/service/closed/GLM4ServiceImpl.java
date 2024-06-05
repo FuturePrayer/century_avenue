@@ -1,19 +1,23 @@
 package cn.miketsu.century_avenue.service.closed;
 
+import cn.miketsu.century_avenue.config.DockingConfig;
+import cn.miketsu.century_avenue.config.Glm4Config;
 import cn.miketsu.century_avenue.service.LlmService;
 import cn.miketsu.century_avenue.util.HttpUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiStreamFunctionCallingHelper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -27,24 +31,22 @@ import java.util.function.Predicate;
 @Service
 public class GLM4ServiceImpl implements LlmService {
 
-    @Value("${glm-4.api-key:}")
-    private String apiKey;
+    @Autowired
+    private Glm4Config glm4Config;
+    
+    @Autowired
+    private DockingConfig dockingConfig;
 
     private static final String BASE_URL = "https://open.bigmodel.cn/api/paas";
 
     private final WebClient webClient;
-
-    private final RestClient restClient;
-
+    
     private static final Predicate<String> SSE_DONE_PREDICATE = "[DONE]"::equals;
 
     private final OpenAiStreamFunctionCallingHelper chunkMerger = new OpenAiStreamFunctionCallingHelper();
 
     public GLM4ServiceImpl() {
         this.webClient = WebClient.builder()
-                .baseUrl(BASE_URL)
-                .build();
-        this.restClient = RestClient.builder()
                 .baseUrl(BASE_URL)
                 .build();
     }
@@ -55,8 +57,13 @@ public class GLM4ServiceImpl implements LlmService {
     }
 
     @Override
+    public Collection<String> subModels() {
+        return glm4Config.getSubModels();
+    }
+
+    @Override
     public Boolean available() {
-        return apiKey != null && !apiKey.isBlank();
+        return glm4Config.getApiKey() != null && !glm4Config.getApiKey().isBlank();
     }
 
     @Override
@@ -66,10 +73,13 @@ public class GLM4ServiceImpl implements LlmService {
 
         AtomicBoolean isInsideTool = new AtomicBoolean(false);
 
+        Map<String, Object> objectMap = ModelOptionsUtils.objectToMap(chatRequest);
+        objectMap.put("model", dockingConfig.getModelMapping().getOrDefault(chatRequest.model(), chatRequest.model()));
+
         return this.webClient.post()
                 .uri("/v4/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
-                .body(Mono.just(chatRequest), OpenAiApi.ChatCompletionRequest.class)
+                .header("Authorization", "Bearer " + glm4Config.getApiKey())
+                .body(Mono.just(objectMap), Map.class)
                 .retrieve()
                 .bodyToFlux(String.class)
                 // 在收到“[DONE]”后取消flux流。
@@ -111,11 +121,14 @@ public class GLM4ServiceImpl implements LlmService {
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
+        Map<String, Object> objectMap = ModelOptionsUtils.objectToMap(chatRequest);
+        objectMap.put("model", dockingConfig.getModelMapping().getOrDefault(chatRequest.model(), chatRequest.model()));
+
         return Flux.just(
                 HttpUtil.post()
                         .url(BASE_URL + "/v4/chat/completions")
-                        .header("Authorization", "Bearer " + apiKey)
-                        .body(chatRequest)
+                        .header("Authorization", "Bearer " + glm4Config.getApiKey())
+                        .body(objectMap)
                         .resp(OpenAiApi.ChatCompletion.class)
         );
     }

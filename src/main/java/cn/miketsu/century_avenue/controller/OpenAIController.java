@@ -57,7 +57,7 @@ public class OpenAIController {
         }
 
         Optional<LlmService> first = llmServices.stream()
-                .filter(llmService -> llmService.available() && llmService.model().equals(model))
+                .filter(llmService -> llmService.available() && (llmService.model().equals(model) || llmService.subModels().contains(model)))
                 .findFirst();
         if (first.isEmpty()) {
             throw new RuntimeException("model not found");
@@ -95,15 +95,20 @@ public class OpenAIController {
     public Mono<String> models() {
         String created = String.valueOf(System.currentTimeMillis() / 1000);
         //统计可用的模型列表
-        List<String> modelList = llmServices.stream()
+        Set<String> modelList = llmServices.stream()
                 .filter(LlmService::available)
                 .map(LlmService::model)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
+        //子模型
+        modelList.addAll(llmServices.stream()
+                .filter(LlmService::available)
+                .map(LlmService::subModels)
+                .flatMap(Collection::stream).collect(Collectors.toSet()));
         //添加上他们的别名
         modelList.addAll(modelList.stream()
                 .map(this::getAliasOfModel)
                 .filter(s -> s != null && !s.isEmpty())
-                .flatMap(List::stream).toList());
+                .flatMap(List::stream).collect(Collectors.toSet()));
         return Mono.just(JacksonUtil.tryParse(
                         new HashMap<String, Object>() {{
                             put("object", "list");
@@ -115,6 +120,7 @@ public class OpenAIController {
                                                 put("created", created);
                                                 put("owned_by", "system");
                                             }})
+                                            .sorted(Comparator.comparing(o -> o.get("id"), Comparator.naturalOrder()))
                                             .toList()
                             );
                         }}

@@ -3,6 +3,9 @@ package cn.miketsu.century_avenue.service;
 import org.springframework.ai.openai.api.OpenAiApi;
 import reactor.core.publisher.Flux;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @author sihuangwlp
  * @date 2024/5/22
@@ -18,6 +21,18 @@ public interface LlmService {
      * @since 0.0.1-SNAPSHOT
      */
     String model();
+
+    /**
+     * 获取子模型
+     *
+     * @return 子模型名称集合
+     * @author sihuangwlp
+     * @date 2024/6/5
+     * @since 1.0.1
+     */
+    default Collection<String> subModels() {
+        return Collections.emptyList();
+    }
 
     /**
      * 本模型是否可用<br/>

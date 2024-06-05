@@ -5,7 +5,7 @@
 一个将商业或开源大语言模型的api映射为OpenAI风格的api的工具，名称取自上海换乘客流最大地铁站“世纪大道”。
 
 ## **特征**
-- 1、目前支持智谱清言GLM4、讯飞星火Lite、讯飞星火Pro、讯飞星火3.5Max
+- 1、目前支持智谱清言GLM4系列、讯飞星火Lite、讯飞星火Pro、讯飞星火3.5Max、千问Long、百度Ernie系列
 - 2、目前（仅）支持`/v1/chat/completions`、`/v1/models`接口
 
 ## **用法**
@@ -25,6 +25,10 @@ api-key: "my api-key"
 # 智谱清言GLM4
 glm-4:
   api-key: "glm-4 api-key"
+  subModels:
+    - "glm-4-air"
+    - "glm-4-airx"
+    # 等等
 # 讯飞星火lite
 spark-lite:
   app_id: "spark-lite app_id"

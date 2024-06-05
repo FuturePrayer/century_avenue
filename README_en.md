@@ -2,7 +2,7 @@
 A tool that maps the API of commercial or open-source large language models to OpenAI-style APIs, named after the "Century Avenue" subway station in Shanghai, which has the highest passenger flow among all stations.
 
 ## **Features**
-Currently, it supports the following AI language models: iFLYTEK GLM4, iFLYTEK Spark Lite, iFLYTEK Spark Pro, and iFLYTEK Spark 3.5Max
+Currently, it supports the following AI language models: zhipuai GLM4 Series, iFLYTEK Spark Lite, iFLYTEK Spark Pro, iFLYTEK Spark 3.5Max, Qwen Long, Baidu Ernie Series
 Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are supported
 
 ## **Usage**
@@ -22,6 +22,10 @@ api-key: "my api-key"
 # zhipuai GLM4
 glm-4:
   api-key: "glm-4 api-key"
+  subModels:
+    - "glm-4-air"
+    - "glm-4-airx"
+    # and so on
 # iFlytek Spark Lite
 spark-lite:
   app_id: "spark-lite app_id"
