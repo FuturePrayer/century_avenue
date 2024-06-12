@@ -19,6 +19,15 @@ Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are suppo
 # Enable authentication, add Authorization to the request header, and follow the same rules as OpenAI, with the content being "Bearer"+api-key
 # If this option is not configured, authorization will not be verified, but we strongly recommend enabling it
 api-key: "my api-key"
+# Forward requests to any large models that comply with the OpenAI API style
+openai:
+  models:
+    - apiKey: "my key"
+      model: "my model"
+      baseUrl: "https://api.openai.com"
+    - apiKey: "my key"
+      model: "my model"
+      baseUrl: "https://dashscope.aliyuncs.com/compatible-mode"
 # zhipuai GLM4
 glm-4:
   api-key: "glm-4 api-key"

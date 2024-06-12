@@ -114,6 +114,7 @@ public class OpenAIController {
                             put("object", "list");
                             put("data",
                                     modelList.stream()
+                                            .filter(llm -> llm != null && !llm.isBlank())
                                             .map(llm -> new HashMap<String, String>() {{
                                                 put("id", llm);
                                                 put("object", "model");

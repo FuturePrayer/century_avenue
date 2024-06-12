@@ -22,6 +22,15 @@
 # 开启鉴权，请求头中需添加Authorization，规则与OpenAI一致，内容为"Bearer "+api-key
 # 不配置此项则不检验授权，但我们强烈推荐开启
 api-key: "my api-key"
+# 向任意符合OpenAI API风格的大模型转发请求
+openai:
+  models:
+    - apiKey: "my key"
+      model: "my model"
+      baseUrl: "https://api.openai.com"
+    - apiKey: "my key"
+      model: "my model"
+      baseUrl: "https://dashscope.aliyuncs.com/compatible-mode"
 # 智谱清言GLM4
 glm-4:
   api-key: "glm-4 api-key"
