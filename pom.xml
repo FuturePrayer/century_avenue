@@ -5,17 +5,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.3.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>cn.miketsu</groupId>
     <artifactId>century_avenue</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <name>century_avenue</name>
     <description>century_avenue</description>
     <properties>
         <java.version>21</java.version>
-        <spring-ai.version>0.8.1</spring-ai.version>
+        <spring-ai.version>1.0.0-M1</spring-ai.version>
     </properties>
     <dependencies>
         <dependency>

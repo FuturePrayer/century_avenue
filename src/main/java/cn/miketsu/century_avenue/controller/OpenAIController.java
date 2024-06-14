@@ -65,6 +65,8 @@ public class OpenAIController {
                 model,
                 chatCompletionRequest.frequencyPenalty(),
                 chatCompletionRequest.logitBias(),
+                chatCompletionRequest.logprobs(),
+                chatCompletionRequest.topLogprobs(),
                 chatCompletionRequest.maxTokens(),
                 chatCompletionRequest.n(),
                 chatCompletionRequest.presencePenalty(),
@@ -78,6 +80,7 @@ public class OpenAIController {
                 chatCompletionRequest.toolChoice(),
                 chatCompletionRequest.user()
         );
+        log.info("聊天补全接口，重新组装后报文：{}", JacksonUtil.tryParse(chatCompletionRequest));
 
         if (first.isEmpty()) {
             throw new RuntimeException(String.format("model %s not found", model));

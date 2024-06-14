@@ -3,8 +3,6 @@ package cn.miketsu.century_avenue.service.common;
 import cn.miketsu.century_avenue.config.OpenAIConfig;
 import cn.miketsu.century_avenue.record.OpenaiCfg;
 import cn.miketsu.century_avenue.service.LlmService;
-import org.springframework.ai.openai.OpenAiChatClient;
-import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 
-import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -61,21 +58,9 @@ public class OpenAIApiService implements LlmService {
         OpenaiCfg openaiCfg = getCfg(chatRequest.model());
         Assert.notNull(openaiCfg, String.format("Cannot find config for model \"%s\"!", chatRequest.model()));
 
-        OpenAiChatClient openAiChatClient = getOpenAiChatClient(chatRequest, openaiCfg);
+        OpenAiApi openAiApi = new OpenAiApi(openaiCfg.baseUrl(), openaiCfg.apiKey());
 
-        try {
-            Class<OpenAiChatClient> clazz = OpenAiChatClient.class;
-
-            Field field = clazz.getDeclaredField("openAiApi");
-
-            field.setAccessible(true);
-
-            OpenAiApi openAiApi = (OpenAiApi) field.get(openAiChatClient);
-
-            return openAiApi.chatCompletionStream(chatRequest);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return openAiApi.chatCompletionStream(chatRequest);
     }
 
     @Override
@@ -87,48 +72,14 @@ public class OpenAIApiService implements LlmService {
         OpenaiCfg openaiCfg = getCfg(chatRequest.model());
         Assert.notNull(openaiCfg, String.format("Cannot find config for model \"%s\"!", chatRequest.model()));
 
-        OpenAiChatClient openAiChatClient = getOpenAiChatClient(chatRequest, openaiCfg);
+        OpenAiApi openAiApi = new OpenAiApi(openaiCfg.baseUrl(), openaiCfg.apiKey());
 
-        try {
-            Class<OpenAiChatClient> clazz = OpenAiChatClient.class;
+        ResponseEntity<OpenAiApi.ChatCompletion> responseEntity = openAiApi.chatCompletionEntity(chatRequest);
 
-            Field field = clazz.getDeclaredField("openAiApi");
-
-            field.setAccessible(true);
-
-            OpenAiApi openAiApi = (OpenAiApi) field.get(openAiChatClient);
-
-            ResponseEntity<OpenAiApi.ChatCompletion> responseEntity = openAiApi.chatCompletionEntity(chatRequest);
-
-            return Flux.just(responseEntity.getBody());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return Flux.just(responseEntity.getBody());
     }
 
     private OpenaiCfg getCfg(String model) {
         return openAIConfig.getModels().stream().filter(cfg -> cfg.model().equals(model)).findFirst().orElse(null);
-    }
-
-    private static OpenAiChatClient getOpenAiChatClient(OpenAiApi.ChatCompletionRequest chatRequest, OpenaiCfg openaiCfg) {
-        return new OpenAiChatClient(
-                new OpenAiApi(openaiCfg.baseUrl(), openaiCfg.apiKey()),
-                OpenAiChatOptions.builder()
-                        .withTools(chatRequest.tools())
-                        .withFrequencyPenalty(chatRequest.frequencyPenalty())
-                        .withModel(chatRequest.model())
-                        .withLogitBias(chatRequest.logitBias())
-                        .withMaxTokens(chatRequest.maxTokens())
-                        .withN(chatRequest.n())
-                        .withPresencePenalty(chatRequest.presencePenalty())
-                        .withResponseFormat(chatRequest.responseFormat())
-                        .withSeed(chatRequest.seed())
-                        .withStop(chatRequest.stop())
-                        .withTemperature(chatRequest.temperature())
-                        .withTopP(chatRequest.topP())
-                        .withToolChoice(chatRequest.toolChoice())
-                        .withUser(chatRequest.user())
-                        .build()
-        );
     }
 }
