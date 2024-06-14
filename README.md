@@ -7,6 +7,7 @@
 ## **特征**
 - 1、目前支持智谱清言GLM4系列、讯飞星火Lite、讯飞星火Pro、讯飞星火3.5Max、千问Long、百度Ernie系列
 - 2、目前（仅）支持`/v1/chat/completions`、`/v1/models`接口
+- 3、支持上述两个接口向指定url的转发
 
 ## **用法**
 ### 通过Releases使用（推荐）

@@ -59,8 +59,28 @@ public class OpenAIController {
         Optional<LlmService> first = llmServices.stream()
                 .filter(llmService -> llmService.available() && (llmService.model().equals(model) || llmService.subModels().contains(model)))
                 .findFirst();
+
+        chatCompletionRequest = new OpenAiApi.ChatCompletionRequest(
+                chatCompletionRequest.messages(),
+                model,
+                chatCompletionRequest.frequencyPenalty(),
+                chatCompletionRequest.logitBias(),
+                chatCompletionRequest.maxTokens(),
+                chatCompletionRequest.n(),
+                chatCompletionRequest.presencePenalty(),
+                chatCompletionRequest.responseFormat(),
+                chatCompletionRequest.seed(),
+                chatCompletionRequest.stop(),
+                chatCompletionRequest.stream() != null && chatCompletionRequest.stream(),
+                chatCompletionRequest.temperature(),
+                chatCompletionRequest.topP(),
+                chatCompletionRequest.tools(),
+                chatCompletionRequest.toolChoice(),
+                chatCompletionRequest.user()
+        );
+
         if (first.isEmpty()) {
-            throw new RuntimeException("model not found");
+            throw new RuntimeException(String.format("model %s not found", model));
         } else if (chatCompletionRequest.stream() != null && chatCompletionRequest.stream()) {
             //流式返回
             Sinks.Many<String> sink = Sinks.many().replay().latest();

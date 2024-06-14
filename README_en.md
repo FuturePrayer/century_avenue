@@ -2,8 +2,9 @@
 A tool that maps the API of commercial or open-source large language models to OpenAI-style APIs, named after the "Century Avenue" subway station in Shanghai, which has the highest passenger flow among all stations.
 
 ## **Features**
-Currently, it supports the following AI language models: zhipuai GLM4 Series, iFLYTEK Spark Lite, iFLYTEK Spark Pro, iFLYTEK Spark 3.5Max, Qwen Long, Baidu Ernie Series
-Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are supported
+- Currently, it supports the following AI language models: zhipuai GLM4 Series, iFLYTEK Spark Lite, iFLYTEK Spark Pro, iFLYTEK Spark 3.5Max, Qwen Long, Baidu Ernie Series
+- Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are supported
+- Support forwarding to the specified URL via the aforementioned two interfaces
 
 ## **Usage**
 ### Using Releases (recommended)

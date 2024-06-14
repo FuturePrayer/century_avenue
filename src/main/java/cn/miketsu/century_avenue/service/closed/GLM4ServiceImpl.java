@@ -72,14 +72,11 @@ public class GLM4ServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
 
         AtomicBoolean isInsideTool = new AtomicBoolean(false);
-
-        Map<String, Object> objectMap = ModelOptionsUtils.objectToMap(chatRequest);
-        objectMap.put("model", dockingConfig.getModelMapping().getOrDefault(chatRequest.model(), chatRequest.model()));
-
+        
         return this.webClient.post()
                 .uri("/v4/chat/completions")
                 .header("Authorization", "Bearer " + glm4Config.getApiKey())
-                .body(Mono.just(objectMap), Map.class)
+                .body(Mono.just(chatRequest), OpenAiApi.ChatCompletionRequest.class)
                 .retrieve()
                 .bodyToFlux(String.class)
                 // 在收到“[DONE]”后取消flux流。
@@ -121,14 +118,11 @@ public class GLM4ServiceImpl implements LlmService {
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
-        Map<String, Object> objectMap = ModelOptionsUtils.objectToMap(chatRequest);
-        objectMap.put("model", dockingConfig.getModelMapping().getOrDefault(chatRequest.model(), chatRequest.model()));
-
         return Flux.just(
                 HttpUtil.post()
                         .url(BASE_URL + "/v4/chat/completions")
                         .header("Authorization", "Bearer " + glm4Config.getApiKey())
-                        .body(objectMap)
+                        .body(chatRequest)
                         .resp(OpenAiApi.ChatCompletion.class)
         );
     }
