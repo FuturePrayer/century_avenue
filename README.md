@@ -24,6 +24,7 @@
 # 不配置此项则不检验授权，但我们强烈推荐开启
 api-key: "my api-key"
 # 向任意符合OpenAI API风格的大模型转发请求
+# 注意：由于Uvicorn对h2和h2c的支持存在问题，本地部署的使用了fastapi的大模型建议通过Hypercorn运行，否则可能导致非流式请求报错
 openai:
   models:
     - apiKey: "my key"

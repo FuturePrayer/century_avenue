@@ -21,6 +21,7 @@ A tool that maps the API of commercial or open-source large language models to O
 # If this option is not configured, authorization will not be verified, but we strongly recommend enabling it
 api-key: "my api-key"
 # Forward requests to any large models that comply with the OpenAI API style
+# Attention: Due to issues with Uvicorn's support for h2 and h2c, it is recommended to run FastAPI llm models using Hypercorn for local deployment. Otherwise, it may cause errors in non-streaming requests.
 openai:
   models:
     - apiKey: "my key"
