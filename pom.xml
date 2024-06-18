@@ -10,9 +10,10 @@
     </parent>
     <groupId>cn.miketsu</groupId>
     <artifactId>century_avenue</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <name>century_avenue</name>
-    <description>century_avenue</description>
+    <description>A tool that maps the API of commercial or open-source large language models to OpenAI-style APIs</description>
+    <url>https://github.com/FuturePrayer/century_avenue</url>
     <properties>
         <java.version>21</java.version>
         <spring-ai.version>1.0.0-M1</spring-ai.version>

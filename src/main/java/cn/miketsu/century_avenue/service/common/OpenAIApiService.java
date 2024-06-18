@@ -3,6 +3,7 @@ package cn.miketsu.century_avenue.service.common;
 import cn.miketsu.century_avenue.config.OpenAIConfig;
 import cn.miketsu.century_avenue.record.OpenaiCfg;
 import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.util.OpenAiUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,12 +54,12 @@ public class OpenAIApiService implements LlmService {
     public Flux<OpenAiApi.ChatCompletionChunk> stream(OpenAiApi.ChatCompletionRequest chatRequest) {
 
         Assert.notNull(chatRequest, "The request body can not be null.");
-        Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
+        Assert.isTrue(chatRequest.stream(), "Request must set the stream property to true.");
 
         OpenaiCfg openaiCfg = getCfg(chatRequest.model());
         Assert.notNull(openaiCfg, String.format("Cannot find config for model \"%s\"!", chatRequest.model()));
 
-        OpenAiApi openAiApi = new OpenAiApi(openaiCfg.baseUrl(), openaiCfg.apiKey());
+        OpenAiUtil openAiApi = new OpenAiUtil(openaiCfg.baseUrl(), openaiCfg.apiKey());
 
         return openAiApi.chatCompletionStream(chatRequest);
     }
@@ -67,12 +68,12 @@ public class OpenAIApiService implements LlmService {
     public Flux<OpenAiApi.ChatCompletion> call(OpenAiApi.ChatCompletionRequest chatRequest) {
 
         Assert.notNull(chatRequest, "The request body can not be null.");
-        Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
+        Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the stream property to false.");
 
         OpenaiCfg openaiCfg = getCfg(chatRequest.model());
         Assert.notNull(openaiCfg, String.format("Cannot find config for model \"%s\"!", chatRequest.model()));
 
-        OpenAiApi openAiApi = new OpenAiApi(openaiCfg.baseUrl(), openaiCfg.apiKey());
+        OpenAiUtil openAiApi = new OpenAiUtil(openaiCfg.baseUrl(), openaiCfg.apiKey());
 
         ResponseEntity<OpenAiApi.ChatCompletion> responseEntity = openAiApi.chatCompletionEntity(chatRequest);
 

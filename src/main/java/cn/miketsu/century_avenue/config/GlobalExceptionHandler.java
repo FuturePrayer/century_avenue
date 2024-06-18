@@ -10,6 +10,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
+import java.util.logging.Level;
+
 /**
  * 全局异常处理
  *
@@ -26,9 +28,9 @@ public class GlobalExceptionHandler implements WebExceptionHandler {
     @Override
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         if (ex instanceof RuntimeException) {
-            return handleRuntimeException((RuntimeException) ex, exchange);
+            return handleRuntimeException((RuntimeException) ex, exchange).log(log, Level.WARNING, false);
         } else {
-            return handleDefaultException(ex, exchange);
+            return handleDefaultException(ex, exchange).log(log, Level.WARNING, false);
         }
     }
 

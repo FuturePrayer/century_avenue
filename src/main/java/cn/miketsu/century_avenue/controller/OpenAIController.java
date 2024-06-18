@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.Sinks;
 import reactor.util.Logger;
 import reactor.util.Loggers;
 
 import java.util.*;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 /**
@@ -80,7 +80,7 @@ public class OpenAIController {
                 chatCompletionRequest.toolChoice(),
                 chatCompletionRequest.user()
         );
-        log.info("聊天补全接口，重新组装后报文：{}", JacksonUtil.tryParse(chatCompletionRequest));
+        log.debug("聊天补全接口，重新组装后报文：{}", JacksonUtil.tryParse(chatCompletionRequest));
 
         if (first.isEmpty()) {
             throw new RuntimeException(String.format("model %s not found", model));
@@ -89,12 +89,12 @@ public class OpenAIController {
             Flux<String> flux = first.get().stream(chatCompletionRequest).map(JacksonUtil::tryParse);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_EVENT_STREAM);
-            return new ResponseEntity<>(flux.concatWith(Flux.just("[DONE]")), headers, HttpStatus.OK);
+            return new ResponseEntity<>(flux.concatWith(Flux.just("[DONE]").log(log, Level.FINE, false)), headers, HttpStatus.OK);
         } else {
             //非流式返回
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            return new ResponseEntity<>(first.get().call(chatCompletionRequest).map(JacksonUtil::tryParse).log(log), headers, HttpStatus.OK);
+            return new ResponseEntity<>(first.get().call(chatCompletionRequest).map(JacksonUtil::tryParse).log(log, Level.FINE, false), headers, HttpStatus.OK);
         }
     }
 
@@ -125,23 +125,24 @@ public class OpenAIController {
                 .filter(s -> s != null && !s.isEmpty())
                 .flatMap(List::stream).collect(Collectors.toSet()));
         return Mono.just(JacksonUtil.tryParse(
-                        new HashMap<String, Object>() {{
-                            put("object", "list");
-                            put("data",
-                                    modelList.stream()
-                                            .filter(llm -> llm != null && !llm.isBlank())
-                                            .map(llm -> new HashMap<String, String>() {{
-                                                put("id", llm);
-                                                put("object", "model");
-                                                put("created", created);
-                                                put("owned_by", "system");
-                                            }})
-                                            .sorted(Comparator.comparing(o -> o.get("id"), Comparator.naturalOrder()))
-                                            .toList()
-                            );
-                        }}
+                                new HashMap<String, Object>() {{
+                                    put("object", "list");
+                                    put("data",
+                                            modelList.stream()
+                                                    .filter(llm -> llm != null && !llm.isBlank())
+                                                    .map(llm -> new HashMap<String, String>() {{
+                                                        put("id", llm);
+                                                        put("object", "model");
+                                                        put("created", created);
+                                                        put("owned_by", "system");
+                                                    }})
+                                                    .sorted(Comparator.comparing(o -> o.get("id"), Comparator.naturalOrder()))
+                                                    .toList()
+                                    );
+                                }}
+                        )
                 )
-        );
+                .log(log, Level.FINE, false);
     }
 
     /**
