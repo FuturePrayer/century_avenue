@@ -86,18 +86,10 @@ public class OpenAIController {
             throw new RuntimeException(String.format("model %s not found", model));
         } else if (chatCompletionRequest.stream() != null && chatCompletionRequest.stream()) {
             //流式返回
-            Sinks.Many<String> sink = Sinks.many().replay().latest();
             Flux<String> flux = first.get().stream(chatCompletionRequest).map(JacksonUtil::tryParse);
-            flux.doOnComplete(() -> {
-                        sink.tryEmitNext("[DONE]");
-                        sink.tryEmitComplete();
-                    })
-                    .log(log)
-                    .subscribe(sink::tryEmitNext);
-
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_EVENT_STREAM);
-            return new ResponseEntity<>(sink.asFlux(), headers, HttpStatus.OK);
+            return new ResponseEntity<>(flux.concatWith(Flux.just("[DONE]")), headers, HttpStatus.OK);
         } else {
             //非流式返回
             HttpHeaders headers = new HttpHeaders();
