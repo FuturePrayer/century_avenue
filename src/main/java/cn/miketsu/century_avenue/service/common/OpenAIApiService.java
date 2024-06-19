@@ -1,7 +1,7 @@
 package cn.miketsu.century_avenue.service.common;
 
-import cn.miketsu.century_avenue.config.OpenAIConfig;
-import cn.miketsu.century_avenue.record.OpenaiCfg;
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig.OpenAI.Model;
 import cn.miketsu.century_avenue.service.LlmService;
 import cn.miketsu.century_avenue.util.OpenAiUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 @Service
 public class OpenAIApiService implements LlmService {
 
-    private final OpenAIConfig openAIConfig;
+    private final CenturyAvenueConfig centuryAvenueConfig;
 
     @Autowired
-    public OpenAIApiService(OpenAIConfig openAIConfig) {
-        this.openAIConfig = openAIConfig;
+    public OpenAIApiService(CenturyAvenueConfig centuryAvenueConfig) {
+        this.centuryAvenueConfig = centuryAvenueConfig;
     }
 
     @Override
@@ -38,13 +38,15 @@ public class OpenAIApiService implements LlmService {
 
     @Override
     public Boolean available() {
-        return openAIConfig.getModels() != null && !openAIConfig.getModels().isEmpty();
+        return centuryAvenueConfig.openai() != null
+                && centuryAvenueConfig.openai().models() != null
+                && !centuryAvenueConfig.openai().models().isEmpty();
     }
 
     @Override
     public Collection<String> subModels() {
         if (available()) {
-            return openAIConfig.getModels().stream().map(OpenaiCfg::model).collect(Collectors.toSet());
+            return centuryAvenueConfig.openai().models().stream().map(Model::model).collect(Collectors.toSet());
         } else {
             return LlmService.super.subModels();
         }
@@ -56,7 +58,7 @@ public class OpenAIApiService implements LlmService {
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream(), "Request must set the stream property to true.");
 
-        OpenaiCfg openaiCfg = getCfg(chatRequest.model());
+        Model openaiCfg = getCfg(chatRequest.model());
         Assert.notNull(openaiCfg, String.format("Cannot find config for model \"%s\"!", chatRequest.model()));
 
         OpenAiUtil openAiApi = new OpenAiUtil(openaiCfg.baseUrl(), openaiCfg.apiKey());
@@ -70,7 +72,7 @@ public class OpenAIApiService implements LlmService {
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the stream property to false.");
 
-        OpenaiCfg openaiCfg = getCfg(chatRequest.model());
+        Model openaiCfg = getCfg(chatRequest.model());
         Assert.notNull(openaiCfg, String.format("Cannot find config for model \"%s\"!", chatRequest.model()));
 
         OpenAiUtil openAiApi = new OpenAiUtil(openaiCfg.baseUrl(), openaiCfg.apiKey());
@@ -80,7 +82,7 @@ public class OpenAIApiService implements LlmService {
         return Flux.just(responseEntity.getBody());
     }
 
-    private OpenaiCfg getCfg(String model) {
-        return openAIConfig.getModels().stream().filter(cfg -> cfg.model().equals(model)).findFirst().orElse(null);
+    private Model getCfg(String model) {
+        return centuryAvenueConfig.openai().models().stream().filter(cfg -> cfg.model().equals(model)).findFirst().orElse(null);
     }
 }

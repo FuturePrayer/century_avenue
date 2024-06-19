@@ -1,14 +1,15 @@
 package cn.miketsu.century_avenue.service.closed;
 
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.record.SparkReq;
 import cn.miketsu.century_avenue.record.SparkResp;
 import cn.miketsu.century_avenue.service.LlmService;
 import cn.miketsu.century_avenue.util.JacksonUtil;
 import cn.miketsu.century_avenue.util.SparkAuthUtil;
+import cn.miketsu.century_avenue.util.StringUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.socket.WebSocketHandler;
@@ -24,7 +25,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -41,14 +41,8 @@ public class SparkProServiceImpl implements LlmService {
 
     private final String path = "/v3.1/chat";
 
-    @Value("${spark-pro.api-secret:}")
-    private String apiSecret;
-
-    @Value("${spark-pro.api-key:}")
-    private String apiKey;
-
-    @Value("${spark-pro.app_id:}")
-    private String appId;
+    @Autowired
+    private CenturyAvenueConfig centuryAvenueConfig;
 
     private final WebSocketClient webSocketClient;
 
@@ -64,12 +58,10 @@ public class SparkProServiceImpl implements LlmService {
 
     @Override
     public Boolean available() {
-        return apiSecret != null
-                && !apiSecret.isBlank()
-                && apiKey != null
-                && !apiKey.isBlank()
-                && appId != null
-                && !appId.isBlank();
+        return centuryAvenueConfig.sparkPro() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.sparkPro().appId())
+                && StringUtil.isNotBlank(centuryAvenueConfig.sparkPro().apiSecret())
+                && StringUtil.isNotBlank(centuryAvenueConfig.sparkPro().apiKey());
     }
 
     @Override
@@ -78,7 +70,7 @@ public class SparkProServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
 
         SparkWebSocketHandler handler = new SparkWebSocketHandler(chatRequest);
-        String authedUrl = SparkAuthUtil.getAuthedUrl(path, apiSecret, apiKey);
+        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.sparkPro().apiSecret(), centuryAvenueConfig.sparkPro().apiKey());
         this.webSocketClient
                 .execute(URI.create(authedUrl), handler)
                 .doOnError(e -> handler.getSink().tryEmitError(new RuntimeException("Websocket connection failed", e)))
@@ -124,7 +116,7 @@ public class SparkProServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
         SparkWebSocketHandler handler = new SparkWebSocketHandler(chatRequest);
-        String authedUrl = SparkAuthUtil.getAuthedUrl(path, apiSecret, apiKey);
+        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.sparkPro().apiSecret(), centuryAvenueConfig.sparkPro().apiKey());
 
         Map<String, String> temp = new HashMap<>();
 
@@ -193,7 +185,7 @@ public class SparkProServiceImpl implements LlmService {
 
         @Override
         public Mono<Void> handle(WebSocketSession session) {
-            SparkReq.Header header = new SparkReq.Header(appId, chatRequest.user());
+            SparkReq.Header header = new SparkReq.Header(centuryAvenueConfig.sparkPro().appId(), chatRequest.user());
             SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("generalv3", chatRequest.temperature(), chatRequest.maxTokens()));
             SparkReq.Payload payload = new SparkReq.Payload(new SparkReq.Message(chatRequest.messages().stream().map(message -> new SparkReq.MessageText(message.role().name().toLowerCase(), message.content())).collect(Collectors.toList())));
             SparkReq sparkReq = new SparkReq(header, chatParameter, payload);

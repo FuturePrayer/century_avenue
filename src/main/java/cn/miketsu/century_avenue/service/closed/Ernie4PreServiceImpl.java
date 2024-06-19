@@ -1,13 +1,15 @@
 package cn.miketsu.century_avenue.service.closed;
 
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.function.ErnieConvert;
 import cn.miketsu.century_avenue.record.ErnieReq;
 import cn.miketsu.century_avenue.record.ErnieResp;
 import cn.miketsu.century_avenue.util.HttpUtil;
 import cn.miketsu.century_avenue.util.JacksonUtil;
+import cn.miketsu.century_avenue.util.StringUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -29,11 +31,8 @@ import java.util.Map;
 @Service
 public class Ernie4PreServiceImpl extends ErnieConvert {
 
-    @Value("${ernie-4.0-8k-preview.api-key:}")
-    private String apiKey;
-
-    @Value("${ernie-4.0-8k-preview.secret-key:}")
-    private String secretKey;
+    @Autowired
+    private CenturyAvenueConfig centuryAvenueConfig;
 
     private static final String authUrl = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=%s&client_secret=%s";
 
@@ -46,10 +45,9 @@ public class Ernie4PreServiceImpl extends ErnieConvert {
 
     @Override
     public Boolean available() {
-        return apiKey != null
-                && !apiKey.isBlank()
-                && secretKey != null
-                && !secretKey.isBlank();
+        return centuryAvenueConfig.ernie408kPreview() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.ernie408kPreview().apiKey())
+                && StringUtil.isNotBlank(centuryAvenueConfig.ernie408kPreview().secretKey());
     }
 
     @Override
@@ -64,7 +62,7 @@ public class Ernie4PreServiceImpl extends ErnieConvert {
         WebClient.builder()
                 .build()
                 .post()
-                .uri(String.format(baseUrl, getAccessToken(authUrl, apiKey, secretKey)))
+                .uri(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernie408kPreview().apiKey(), centuryAvenueConfig.ernie408kPreview().secretKey())))
                 .header("Content-Type", "application/json")
                 .body(Mono.just(convertReq(chatRequest)), ErnieReq.class)
                 .retrieve()
@@ -102,7 +100,7 @@ public class Ernie4PreServiceImpl extends ErnieConvert {
 
         return Flux.just(
                 HttpUtil.post()
-                        .url(String.format(baseUrl, getAccessToken(authUrl, apiKey, secretKey)))
+                        .url(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernie408kPreview().apiKey(), centuryAvenueConfig.ernie408kPreview().secretKey())))
                         .header("Content-Type", "application/json")
                         .body(JacksonUtil.tryParse(convertReq(chatRequest)))
                         .resp(ErnieResp.class, this::convertResp)

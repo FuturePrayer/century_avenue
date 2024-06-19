@@ -1,14 +1,13 @@
 package cn.miketsu.century_avenue.service.closed;
 
-import cn.miketsu.century_avenue.config.DockingConfig;
-import cn.miketsu.century_avenue.config.Glm4Config;
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.service.LlmService;
 import cn.miketsu.century_avenue.util.HttpUtil;
+import cn.miketsu.century_avenue.util.StringUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiStreamFunctionCallingHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,8 +15,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -32,15 +31,12 @@ import java.util.function.Predicate;
 public class GLM4ServiceImpl implements LlmService {
 
     @Autowired
-    private Glm4Config glm4Config;
-    
-    @Autowired
-    private DockingConfig dockingConfig;
+    private CenturyAvenueConfig centuryAvenueConfig;
 
     private static final String BASE_URL = "https://open.bigmodel.cn/api/paas";
 
     private final WebClient webClient;
-    
+
     private static final Predicate<String> SSE_DONE_PREDICATE = "[DONE]"::equals;
 
     private final OpenAiStreamFunctionCallingHelper chunkMerger = new OpenAiStreamFunctionCallingHelper();
@@ -58,12 +54,12 @@ public class GLM4ServiceImpl implements LlmService {
 
     @Override
     public Collection<String> subModels() {
-        return glm4Config.getSubModels();
+        return centuryAvenueConfig.glm4() == null ? Collections.emptyList() : centuryAvenueConfig.glm4().subModels();
     }
 
     @Override
     public Boolean available() {
-        return glm4Config.getApiKey() != null && !glm4Config.getApiKey().isBlank();
+        return centuryAvenueConfig.glm4() != null && StringUtil.isNotBlank(centuryAvenueConfig.glm4().apiKey());
     }
 
     @Override
@@ -72,10 +68,10 @@ public class GLM4ServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
 
         AtomicBoolean isInsideTool = new AtomicBoolean(false);
-        
+
         return this.webClient.post()
                 .uri("/v4/chat/completions")
-                .header("Authorization", "Bearer " + glm4Config.getApiKey())
+                .header("Authorization", "Bearer " + centuryAvenueConfig.glm4().apiKey())
                 .body(Mono.just(chatRequest), OpenAiApi.ChatCompletionRequest.class)
                 .retrieve()
                 .bodyToFlux(String.class)
@@ -121,7 +117,7 @@ public class GLM4ServiceImpl implements LlmService {
         return Flux.just(
                 HttpUtil.post()
                         .url(BASE_URL + "/v4/chat/completions")
-                        .header("Authorization", "Bearer " + glm4Config.getApiKey())
+                        .header("Authorization", "Bearer " + centuryAvenueConfig.glm4().apiKey())
                         .body(chatRequest)
                         .resp(OpenAiApi.ChatCompletion.class)
         );
