@@ -89,6 +89,9 @@ public class OpenAIController {
             Flux<String> flux = first.get().stream(chatCompletionRequest).map(JacksonUtil::tryParse);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.TEXT_EVENT_STREAM);
+            headers.setConnection("keep-alive");
+            headers.setCacheControl("no-cache");
+            headers.set("x-accel-buffering", "no");
             return new ResponseEntity<>(flux.concatWith(Flux.just("[DONE]").log(log, Level.FINE, false)), headers, HttpStatus.OK);
         } else {
             //非流式返回
