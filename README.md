@@ -5,7 +5,7 @@
 一个将商业或开源大语言模型的api映射为OpenAI风格的api的工具，名称取自上海换乘客流最大地铁站“世纪大道”。
 
 ## **特征**
-- 1、目前支持智谱清言GLM4系列、讯飞星火Lite、讯飞星火Pro、讯飞星火3.5Max、千问Long、百度Ernie系列
+- 1、目前支持智谱清言GLM4系列、讯飞星火Lite、讯飞星火Pro、讯飞星火3.5Max、讯飞星火4.0Ultra、千问Long、百度Ernie系列
 - 2、目前（仅）支持`/v1/chat/completions`、`/v1/models`接口
 - 3、支持上述两个接口向指定url的转发
 
@@ -25,14 +25,15 @@
 api-key: "my api-key"
 # 向任意符合OpenAI API风格的大模型转发请求
 # 注意：由于Uvicorn对h2和h2c的支持存在问题，本地部署的使用了fastapi的大模型建议通过Hypercorn运行，否则可能导致非流式请求报错
+# 2.0.0及以上版本只会在baseUrl后补上/chat/completions，2.0.0以下版本会补上/v1/chat/completions
 openai:
   models:
     - apiKey: "my key"
       model: "my model"
-      baseUrl: "https://api.openai.com"
+      baseUrl: "https://api.openai.com/v1"
     - apiKey: "my key"
       model: "my model"
-      baseUrl: "https://dashscope.aliyuncs.com/compatible-mode"
+      baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1"
 # 智谱清言GLM4
 glm-4:
   api-key: "glm-4 api-key"
@@ -50,11 +51,16 @@ spark-pro:
   app_id: "spark-pro app_id"
   api-secret: "spark-pro api-secret"
   api-key: "spark-pro api-key"
-# 讯飞星火3.5Max
+# 讯飞星火3.5 Max
 spark35-max:
   app_id: "spark35-max app_id"
   api-secret: "spark35-max api-secret"
   api-key: "spark35-max api-key"
+# 讯飞星火4.0 Ultra
+spark4-ultra:
+  app_id: "spark4-ultra app_id"
+  api-secret: "spark4-ultra api-secret"
+  api-key: "spark4-ultra api-key"
 # 阿里巴巴Qwen-Long
 qwen-long:
   api-key: "qwen-long api-key"

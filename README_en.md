@@ -2,7 +2,7 @@
 A tool that maps the API of commercial or open-source large language models to OpenAI-style APIs, named after the "Century Avenue" subway station in Shanghai, which has the highest passenger flow among all stations.
 
 ## **Features**
-- Currently, it supports the following AI language models: zhipuai GLM4 Series, iFLYTEK Spark Lite, iFLYTEK Spark Pro, iFLYTEK Spark 3.5Max, Qwen Long, Baidu Ernie Series
+- Currently, it supports the following AI language models: zhipuai GLM4 Series, iFLYTEK Spark Lite, iFLYTEK Spark Pro, iFLYTEK Spark3.5 Max, iFlytek Spark4.0 Ultra, Qwen Long, Baidu Ernie Series
 - Currently, only the `/v1/chat/completions` and `/v1/models` interfaces are supported
 - Support forwarding to the specified URL via the aforementioned two interfaces
 
@@ -22,6 +22,7 @@ A tool that maps the API of commercial or open-source large language models to O
 api-key: "my api-key"
 # Forward requests to any large models that comply with the OpenAI API style
 # Attention: Due to issues with Uvicorn's support for h2 and h2c, it is recommended to run FastAPI llm models using Hypercorn for local deployment. Otherwise, it may cause errors in non-streaming requests.
+# Versions 2.0.0 and above will only append '/chat/completions' after the baseUrl, while versions below 2.0.0 will append '/v1/chat/completions'.
 openai:
   models:
     - apiKey: "my key"
@@ -52,6 +53,11 @@ spark35-max:
   app_id: "spark35-max app_id"
   api-secret: "spark35-max api-secret"
   api-key: "spark35-max api-key"
+# iFlytek Spark4.0 Ultra
+spark4-ultra:
+  app_id: "spark4-ultra app_id"
+  api-secret: "spark4-ultra api-secret"
+  api-key: "spark4-ultra api-key"
 # Alibaba Qwen-Long
 qwen-long:
   api-key: "qwen-long api-key"

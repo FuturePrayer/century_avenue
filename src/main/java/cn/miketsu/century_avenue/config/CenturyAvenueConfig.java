@@ -17,9 +17,10 @@ import java.util.Map;
 public record CenturyAvenueConfig(@JsonProperty("api-key") String apiKey,
                                   OpenAI openai,
                                   @JsonProperty("glm-4") GLM4 glm4,
-                                  @JsonProperty("spark-lite") SparkLite sparkLite,
-                                  @JsonProperty("spark-pro") SparkPro sparkPro,
-                                  @JsonProperty("spark35-max") Spark35Max spark35Max,
+                                  @JsonProperty("spark-lite") SparkCfg sparkLite,
+                                  @JsonProperty("spark-pro") SparkCfg sparkPro,
+                                  @JsonProperty("spark35-max") SparkCfg spark35Max,
+                                  @JsonProperty("spark4-ultra") SparkCfg spark4Ultra,
                                   @JsonProperty("qwen-long") QwenLong qwenLong,
                                   @JsonProperty("ernie-tiny-8k") ErnieTiny8k ernieTiny8k,
                                   @JsonProperty("ernie-lite-8k") ErnieLite8k ernieLite8k,
@@ -42,19 +43,9 @@ public record CenturyAvenueConfig(@JsonProperty("api-key") String apiKey,
                        List<String> subModels) {
     }
 
-    public record SparkLite(@JsonProperty("app_id") String appId,
+    public record SparkCfg(@JsonProperty("app_id") String appId,
                             @JsonProperty("api-secret") String apiSecret,
                             @JsonProperty("api-key") String apiKey) {
-    }
-
-    public record SparkPro(@JsonProperty("app_id") String appId,
-                           @JsonProperty("api-secret") String apiSecret,
-                           @JsonProperty("api-key") String apiKey) {
-    }
-
-    public record Spark35Max(@JsonProperty("app_id") String appId,
-                             @JsonProperty("api-secret") String apiSecret,
-                             @JsonProperty("api-key") String apiKey) {
     }
 
     public record QwenLong(@JsonProperty("api-key") String apiKey) {

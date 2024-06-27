@@ -47,7 +47,7 @@ public class OpenAiUtil {
         Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
         
         return this.webClient.post()
-                .uri("/v1/chat/completions")
+                .uri("/chat/completions")
                 .body(Mono.just(chatRequest), OpenAiApi.ChatCompletionRequest.class)
                 .retrieve()
                 .bodyToFlux(String.class)
@@ -62,7 +62,7 @@ public class OpenAiUtil {
         Assert.isTrue(!chatRequest.stream(), "Request must set the steam property to false.");
 
         return this.restClient.post()
-                .uri("/v1/chat/completions")
+                .uri("/chat/completions")
                 .body(chatRequest)
                 .retrieve()
                 .toEntity(OpenAiApi.ChatCompletion.class);
