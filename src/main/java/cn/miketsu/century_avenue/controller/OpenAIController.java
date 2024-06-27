@@ -1,6 +1,6 @@
 package cn.miketsu.century_avenue.controller;
 
-import cn.miketsu.century_avenue.config.DockingConfig;
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.service.LlmService;
 import cn.miketsu.century_avenue.util.JacksonUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
@@ -34,7 +34,7 @@ public class OpenAIController {
     private List<LlmService> llmServices;
 
     @Autowired
-    private DockingConfig dockingConfig;
+    private CenturyAvenueConfig centuryAvenueConfig;
 
     /**
      * 聊天
@@ -50,8 +50,8 @@ public class OpenAIController {
         log.info("聊天补全接口，传入报文：{}", JacksonUtil.tryParse(chatCompletionRequest));
         //模型名称映射
         String model;
-        if (dockingConfig.getModelMapping() != null && dockingConfig.getModelMapping().containsKey(chatCompletionRequest.model())) {
-            model = dockingConfig.getModelMapping().get(chatCompletionRequest.model());
+        if (centuryAvenueConfig.centuryAvenue() != null && centuryAvenueConfig.centuryAvenue().modelMapping() != null) {
+            model = centuryAvenueConfig.centuryAvenue().modelMapping().getOrDefault(chatCompletionRequest.model(), chatCompletionRequest.model());
         } else {
             model = chatCompletionRequest.model();
         }
@@ -111,6 +111,7 @@ public class OpenAIController {
      */
     @GetMapping(value = "/models", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> models() {
+        System.out.println(JacksonUtil.tryParse(centuryAvenueConfig));
         String created = String.valueOf(System.currentTimeMillis() / 1000);
         //统计可用的模型列表
         Set<String> modelList = llmServices.stream()
@@ -157,10 +158,10 @@ public class OpenAIController {
      * @since 0.0.4-SNAPSHOT
      */
     private List<String> getAliasOfModel(String model) {
-        if (dockingConfig.getModelMapping() == null) {
+        if (centuryAvenueConfig.centuryAvenue() == null || centuryAvenueConfig.centuryAvenue().modelMapping() == null) {
             return Collections.emptyList();
         }
-        return dockingConfig.getModelMapping().entrySet().stream()
+        return centuryAvenueConfig.centuryAvenue().modelMapping().entrySet().stream()
                 .filter(entry -> entry.getValue().equals(model))
                 .map(Map.Entry::getKey)
                 .toList();

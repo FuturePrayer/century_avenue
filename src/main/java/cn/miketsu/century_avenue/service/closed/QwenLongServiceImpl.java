@@ -1,10 +1,12 @@
 package cn.miketsu.century_avenue.service.closed;
 
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.util.StringUtil;
 import org.springframework.ai.model.ModelOptionsUtils;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.OpenAiStreamFunctionCallingHelper;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClient;
@@ -26,8 +28,9 @@ import java.util.function.Predicate;
  */
 @Service
 public class QwenLongServiceImpl implements LlmService {
-    @Value("${qwen-long.api-key:}")
-    private String apiKey;
+
+    @Autowired
+    private CenturyAvenueConfig centuryAvenueConfig;
 
     private static final String BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode";
 
@@ -55,7 +58,8 @@ public class QwenLongServiceImpl implements LlmService {
 
     @Override
     public Boolean available() {
-        return apiKey != null && !apiKey.isBlank();
+        return centuryAvenueConfig.qwenLong() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.qwenLong().apiKey());
     }
 
     @Override
@@ -67,7 +71,7 @@ public class QwenLongServiceImpl implements LlmService {
 
         return this.webClient.post()
                 .uri("/v1/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + centuryAvenueConfig.qwenLong().apiKey())
                 .body(Mono.just(chatRequest), OpenAiApi.ChatCompletionRequest.class)
                 .retrieve()
                 .bodyToFlux(String.class)
@@ -112,7 +116,7 @@ public class QwenLongServiceImpl implements LlmService {
 
         return Flux.just(Objects.requireNonNull(this.restClient.post()
                 .uri("/v1/chat/completions")
-                .header("Authorization", "Bearer " + apiKey)
+                .header("Authorization", "Bearer " + centuryAvenueConfig.qwenLong().apiKey())
                 .body(chatRequest)
                 .retrieve()
                 .body(OpenAiApi.ChatCompletion.class)));

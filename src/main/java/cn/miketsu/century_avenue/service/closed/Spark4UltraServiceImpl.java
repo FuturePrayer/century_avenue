@@ -28,18 +28,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 讯飞星火Spark3.5 Max
+ * 讯飞星火Spark4 Ultra
  *
  * @author sihuangwlp
- * @date 2024/5/22
- * @since 0.0.1-SNAPSHOT
+ * @date 2024/6/27
+ * @since 2.0.0-beta
  */
 @Service
-public class Spark35MaxServiceImpl implements LlmService {
+public class Spark4UltraServiceImpl implements LlmService {
 
     public static final String WEB_SOCKET_STREAMING_COMPLETED = "WebSocket streaming completed";
 
-    private final String path = "/v3.5/chat";
+    private final String path = "/v4.0/chat";
 
     @Autowired
     private CenturyAvenueConfig centuryAvenueConfig;
@@ -47,21 +47,21 @@ public class Spark35MaxServiceImpl implements LlmService {
     private final WebSocketClient webSocketClient;
 
     @Autowired
-    public Spark35MaxServiceImpl(WebSocketClient webSocketClient) {
+    public Spark4UltraServiceImpl(WebSocketClient webSocketClient) {
         this.webSocketClient = webSocketClient;
     }
 
     @Override
     public String model() {
-        return "spark35-max";
+        return "spark4-ultra";
     }
 
     @Override
     public Boolean available() {
-        return centuryAvenueConfig.spark35Max() != null
-                && StringUtil.isNotBlank(centuryAvenueConfig.spark35Max().appId())
-                && StringUtil.isNotBlank(centuryAvenueConfig.spark35Max().apiSecret())
-                && StringUtil.isNotBlank(centuryAvenueConfig.spark35Max().apiKey());
+        return centuryAvenueConfig.spark4Ultra() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.spark4Ultra().appId())
+                && StringUtil.isNotBlank(centuryAvenueConfig.spark4Ultra().apiSecret())
+                && StringUtil.isNotBlank(centuryAvenueConfig.spark4Ultra().apiKey());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class Spark35MaxServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
 
         SparkWebSocketHandler handler = new SparkWebSocketHandler(chatRequest);
-        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.spark35Max().apiSecret(), centuryAvenueConfig.spark35Max().apiKey());
+        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.spark4Ultra().apiSecret(), centuryAvenueConfig.spark4Ultra().apiKey());
         this.webSocketClient
                 .execute(URI.create(authedUrl), handler)
                 .doOnError(e -> handler.getSink().tryEmitError(new RuntimeException("Websocket connection failed", e)))
@@ -116,7 +116,7 @@ public class Spark35MaxServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
         SparkWebSocketHandler handler = new SparkWebSocketHandler(chatRequest);
-        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.spark35Max().apiSecret(), centuryAvenueConfig.spark35Max().apiKey());
+        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.spark4Ultra().apiSecret(), centuryAvenueConfig.spark4Ultra().apiKey());
 
         Map<String, String> temp = new HashMap<>();
 
@@ -185,8 +185,8 @@ public class Spark35MaxServiceImpl implements LlmService {
 
         @Override
         public Mono<Void> handle(WebSocketSession session) {
-            SparkReq.Header header = new SparkReq.Header(centuryAvenueConfig.spark35Max().appId(), chatRequest.user());
-            SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("generalv3.5", chatRequest.temperature(), chatRequest.maxTokens()));
+            SparkReq.Header header = new SparkReq.Header(centuryAvenueConfig.spark4Ultra().appId(), chatRequest.user());
+            SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("4.0Ultra", chatRequest.temperature(), chatRequest.maxTokens()));
             SparkReq.Payload payload = new SparkReq.Payload(new SparkReq.Message(chatRequest.messages().stream().map(message -> new SparkReq.MessageText(message.role().name().toLowerCase(), message.content())).collect(Collectors.toList())));
             SparkReq sparkReq = new SparkReq(header, chatParameter, payload);
 

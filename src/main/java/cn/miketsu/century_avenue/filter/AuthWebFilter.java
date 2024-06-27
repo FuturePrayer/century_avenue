@@ -1,6 +1,8 @@
 package cn.miketsu.century_avenue.filter;
 
-import org.springframework.beans.factory.annotation.Value;
+import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
+import cn.miketsu.century_avenue.util.StringUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -24,8 +26,8 @@ import java.util.Objects;
 @Component
 public class AuthWebFilter implements WebFilter {
 
-    @Value("${api-key:}")
-    private String apiKey;
+    @Autowired
+    private CenturyAvenueConfig centuryAvenueConfig;
 
     private static final String REQUIRED_HEADER = "Authorization";
 
@@ -35,15 +37,15 @@ public class AuthWebFilter implements WebFilter {
         ServerHttpRequest request = exchange.getRequest();
 
         // 检查是否存在指定的header
-        if (!apiKey.isBlank() && (
+        if (StringUtil.isNotBlank(centuryAvenueConfig.apiKey()) && (
                 !request.getHeaders().containsKey(REQUIRED_HEADER)
                         || request.getHeaders().get(REQUIRED_HEADER) == null
                         || request.getHeaders().get(REQUIRED_HEADER).isEmpty())) {
             // 如果不存在，设置403 Forbidden状态码
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap("Forbidden: Missing required header '".concat(REQUIRED_HEADER).concat("'").getBytes())));
-        } else if (!apiKey.isBlank()
-                && !Objects.equals(request.getHeaders().get(REQUIRED_HEADER).get(0), "Bearer " + apiKey)) {
+        } else if (StringUtil.isNotBlank(centuryAvenueConfig.apiKey())
+                && !Objects.equals(request.getHeaders().get(REQUIRED_HEADER).get(0), "Bearer " + centuryAvenueConfig.apiKey())) {
             // 如果错误，设置403 Forbidden状态码
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap("Forbidden: Required header '".concat(REQUIRED_HEADER).concat("' is wrong").getBytes())));
