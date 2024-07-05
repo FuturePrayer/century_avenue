@@ -1,7 +1,7 @@
-package cn.miketsu.century_avenue.service.closed;
+package cn.miketsu.century_avenue.service.completions.closed;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
-import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.service.completions.LlmService;
 import cn.miketsu.century_avenue.util.HttpUtil;
 import cn.miketsu.century_avenue.util.StringUtil;
 import org.springframework.ai.model.ModelOptionsUtils;

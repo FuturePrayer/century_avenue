@@ -1,8 +1,12 @@
 package cn.miketsu.century_avenue.controller;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
-import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.record.EmbeddingsReq;
+import cn.miketsu.century_avenue.record.EmbeddingsResp;
+import cn.miketsu.century_avenue.service.completions.LlmService;
+import cn.miketsu.century_avenue.service.embeddings.EmbeddingService;
 import cn.miketsu.century_avenue.util.JacksonUtil;
+import cn.miketsu.century_avenue.util.StringUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +36,9 @@ public class OpenAIController {
 
     @Autowired
     private List<LlmService> llmServices;
+
+    @Autowired
+    private List<EmbeddingService> embeddingServices;
 
     @Autowired
     private CenturyAvenueConfig centuryAvenueConfig;
@@ -111,7 +118,6 @@ public class OpenAIController {
      */
     @GetMapping(value = "/models", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<String> models() {
-        System.out.println(JacksonUtil.tryParse(centuryAvenueConfig));
         String created = String.valueOf(System.currentTimeMillis() / 1000);
         //统计可用的模型列表
         Set<String> modelList = llmServices.stream()
@@ -147,6 +153,32 @@ public class OpenAIController {
                         )
                 )
                 .log(log, Level.FINE, false);
+    }
+
+    /**
+     * 获取文本向量
+     *
+     * @return openai风格的文本向量响应参数
+     * @author sihuangwlp
+     * @date 2024/7/5
+     * @since 2.0.0
+     */
+    @PostMapping(value = "/embeddings", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Mono<String> embeddings(@RequestBody EmbeddingsReq embeddingsReq) {
+        if (StringUtil.isBlank(embeddingsReq.input())) {
+            throw new RuntimeException("input is blank");
+        }
+        if (StringUtil.isBlank(embeddingsReq.model())) {
+            throw new RuntimeException("model is blank");
+        }
+        for (EmbeddingService embeddingService : embeddingServices) {
+            if (embeddingService.available() && embeddingService.model().contains(embeddingsReq.model())) {
+                String data = JacksonUtil.tryParse(embeddingService.embeddings(embeddingsReq));
+                log.debug("获取文本向量接口，返回报文：{}", data);
+                return Mono.just(data);
+            }
+        }
+        throw new RuntimeException("model is not available");
     }
 
     /**

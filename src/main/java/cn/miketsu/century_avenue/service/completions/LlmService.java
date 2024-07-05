@@ -1,4 +1,4 @@
-package cn.miketsu.century_avenue.service;
+package cn.miketsu.century_avenue.service.completions;
 
 import org.springframework.ai.openai.api.OpenAiApi;
 import reactor.core.publisher.Flux;

@@ -1,9 +1,9 @@
-package cn.miketsu.century_avenue.service.closed;
+package cn.miketsu.century_avenue.service.completions.closed;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.record.SparkReq;
 import cn.miketsu.century_avenue.record.SparkResp;
-import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.service.completions.LlmService;
 import cn.miketsu.century_avenue.util.JacksonUtil;
 import cn.miketsu.century_avenue.util.SparkAuthUtil;
 import cn.miketsu.century_avenue.util.StringUtil;
@@ -28,18 +28,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 讯飞星火Spark Pro
+ * 讯飞星火Spark3.5 Max
  *
  * @author sihuangwlp
  * @date 2024/5/22
  * @since 0.0.1-SNAPSHOT
  */
 @Service
-public class SparkProServiceImpl implements LlmService {
+public class Spark35MaxServiceImpl implements LlmService {
 
     public static final String WEB_SOCKET_STREAMING_COMPLETED = "WebSocket streaming completed";
 
-    private final String path = "/v3.1/chat";
+    private final String path = "/v3.5/chat";
 
     @Autowired
     private CenturyAvenueConfig centuryAvenueConfig;
@@ -47,21 +47,21 @@ public class SparkProServiceImpl implements LlmService {
     private final WebSocketClient webSocketClient;
 
     @Autowired
-    public SparkProServiceImpl(WebSocketClient webSocketClient) {
+    public Spark35MaxServiceImpl(WebSocketClient webSocketClient) {
         this.webSocketClient = webSocketClient;
     }
 
     @Override
     public String model() {
-        return "spark-pro";
+        return "spark35-max";
     }
 
     @Override
     public Boolean available() {
-        return centuryAvenueConfig.sparkPro() != null
-                && StringUtil.isNotBlank(centuryAvenueConfig.sparkPro().appId())
-                && StringUtil.isNotBlank(centuryAvenueConfig.sparkPro().apiSecret())
-                && StringUtil.isNotBlank(centuryAvenueConfig.sparkPro().apiKey());
+        return centuryAvenueConfig.spark35Max() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.spark35Max().appId())
+                && StringUtil.isNotBlank(centuryAvenueConfig.spark35Max().apiSecret())
+                && StringUtil.isNotBlank(centuryAvenueConfig.spark35Max().apiKey());
     }
 
     @Override
@@ -70,7 +70,7 @@ public class SparkProServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream(), "Request must set the steam property to true.");
 
         SparkWebSocketHandler handler = new SparkWebSocketHandler(chatRequest);
-        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.sparkPro().apiSecret(), centuryAvenueConfig.sparkPro().apiKey());
+        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.spark35Max().apiSecret(), centuryAvenueConfig.spark35Max().apiKey());
         this.webSocketClient
                 .execute(URI.create(authedUrl), handler)
                 .doOnError(e -> handler.getSink().tryEmitError(new RuntimeException("Websocket connection failed", e)))
@@ -116,7 +116,7 @@ public class SparkProServiceImpl implements LlmService {
         Assert.isTrue(chatRequest.stream() == null || !chatRequest.stream(), "Request must set the steam property to false.");
 
         SparkWebSocketHandler handler = new SparkWebSocketHandler(chatRequest);
-        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.sparkPro().apiSecret(), centuryAvenueConfig.sparkPro().apiKey());
+        String authedUrl = SparkAuthUtil.getAuthedUrl(path, centuryAvenueConfig.spark35Max().apiSecret(), centuryAvenueConfig.spark35Max().apiKey());
 
         Map<String, String> temp = new HashMap<>();
 
@@ -185,8 +185,8 @@ public class SparkProServiceImpl implements LlmService {
 
         @Override
         public Mono<Void> handle(WebSocketSession session) {
-            SparkReq.Header header = new SparkReq.Header(centuryAvenueConfig.sparkPro().appId(), chatRequest.user());
-            SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("generalv3", chatRequest.temperature(), chatRequest.maxTokens()));
+            SparkReq.Header header = new SparkReq.Header(centuryAvenueConfig.spark35Max().appId(), chatRequest.user());
+            SparkReq.ChatParameter chatParameter = new SparkReq.ChatParameter(new SparkReq.Chat("generalv3.5", chatRequest.temperature(), chatRequest.maxTokens()));
             SparkReq.Payload payload = new SparkReq.Payload(new SparkReq.Message(chatRequest.messages().stream().map(message -> new SparkReq.MessageText(message.role().name().toLowerCase(), message.content())).collect(Collectors.toList())));
             SparkReq sparkReq = new SparkReq(header, chatParameter, payload);
 
@@ -194,6 +194,7 @@ public class SparkProServiceImpl implements LlmService {
                     .thenMany(session.receive()
                             .map(WebSocketMessage::getPayloadAsText)
                             .doOnComplete(() -> sink.tryEmitNext(WEB_SOCKET_STREAMING_COMPLETED))
+                            .doOnEach(System.out::println)
                             .doOnNext(sink::tryEmitNext)
                             .doOnComplete(sink::tryEmitComplete)
                     )

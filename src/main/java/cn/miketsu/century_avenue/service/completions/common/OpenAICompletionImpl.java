@@ -1,8 +1,8 @@
-package cn.miketsu.century_avenue.service.common;
+package cn.miketsu.century_avenue.service.completions.common;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig.OpenAI.Model;
-import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.service.completions.LlmService;
 import cn.miketsu.century_avenue.util.OpenAiUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +22,12 @@ import java.util.stream.Collectors;
  * @since 1.0.2
  */
 @Service
-public class OpenAIApiService implements LlmService {
+public class OpenAICompletionImpl implements LlmService {
 
     private final CenturyAvenueConfig centuryAvenueConfig;
 
     @Autowired
-    public OpenAIApiService(CenturyAvenueConfig centuryAvenueConfig) {
+    public OpenAICompletionImpl(CenturyAvenueConfig centuryAvenueConfig) {
         this.centuryAvenueConfig = centuryAvenueConfig;
     }
 

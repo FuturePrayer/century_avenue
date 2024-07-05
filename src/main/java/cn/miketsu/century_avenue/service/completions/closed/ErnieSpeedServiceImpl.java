@@ -1,4 +1,4 @@
-package cn.miketsu.century_avenue.service.closed;
+package cn.miketsu.century_avenue.service.completions.closed;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.function.ErnieConvert;
@@ -17,37 +17,35 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Sinks;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
- * ERNIE-3.5-8K-Preview
+ * ERNIE-Speed-8K
  *
  * @author sihuangwlp
- * @date 2024/5/28
- * @since 1.0.0
+ * @date 2024/5/26
+ * @since 0.0.4-SNAPSHOT
  */
 @Service
-public class Ernie35PreServiceImpl extends ErnieConvert {
+public class ErnieSpeedServiceImpl extends ErnieConvert {
 
     @Autowired
     private CenturyAvenueConfig centuryAvenueConfig;
 
     private static final String authUrl = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=%s&client_secret=%s";
 
-    private static final String baseUrl = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie-3.5-8k-preview?access_token=%s";
+    private static final String baseUrl = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie_speed?access_token=%s";
 
     @Override
     public String model() {
-        return "ernie-3.5-8k-preview";
+        return "ernie-speed";
     }
 
     @Override
     public Boolean available() {
-        return centuryAvenueConfig.ernie358kPreview() != null
-                && StringUtil.isNotBlank(centuryAvenueConfig.ernie358kPreview().apiKey())
-                && StringUtil.isNotBlank(centuryAvenueConfig.ernie358kPreview().secretKey());
+        return centuryAvenueConfig.ernieSpeed() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.ernieSpeed().apiKey())
+                && StringUtil.isNotBlank(centuryAvenueConfig.ernieSpeed().secretKey());
     }
 
     @Override
@@ -62,7 +60,7 @@ public class Ernie35PreServiceImpl extends ErnieConvert {
         WebClient.builder()
                 .build()
                 .post()
-                .uri(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernie358kPreview().apiKey(), centuryAvenueConfig.ernie358kPreview().secretKey())))
+                .uri(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernieSpeed().apiKey(), centuryAvenueConfig.ernieSpeed().secretKey())))
                 .header("Content-Type", "application/json")
                 .body(Mono.just(convertReq(chatRequest)), ErnieReq.class)
                 .retrieve()
@@ -100,7 +98,7 @@ public class Ernie35PreServiceImpl extends ErnieConvert {
 
         return Flux.just(
                 HttpUtil.post()
-                        .url(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernie358kPreview().apiKey(), centuryAvenueConfig.ernie358kPreview().secretKey())))
+                        .url(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernieSpeed().apiKey(), centuryAvenueConfig.ernieSpeed().secretKey())))
                         .header("Content-Type", "application/json")
                         .body(JacksonUtil.tryParse(convertReq(chatRequest)))
                         .resp(ErnieResp.class, this::convertResp)
