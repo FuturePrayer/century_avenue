@@ -23,12 +23,13 @@ api-key: "my api-key"
 # Forward requests to any large models that comply with the OpenAI API style
 # Attention: Due to issues with Uvicorn's support for h2 and h2c, it is recommended to run FastAPI llm models using Hypercorn for local deployment. Otherwise, it may cause errors in non-streaming requests.
 # Versions 2.0.0 and above will only append '/chat/completions' after the baseUrl, while versions below 2.0.0 will append '/v1/chat/completions'.
+# The `apiKey` supports multiple entries, separated by commas (,). The system will aggregate and poll based on the same model name (`model`).
 openai:
   models:
     - apiKey: "my key"
       model: "my model"
       baseUrl: "https://api.openai.com"
-    - apiKey: "my key"
+    - apiKey: "key1,key2"
       model: "my model"
       baseUrl: "https://dashscope.aliyuncs.com/compatible-mode"
 # zhipuai GLM4

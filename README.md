@@ -26,12 +26,13 @@ api-key: "my api-key"
 # 向任意符合OpenAI API风格的大模型转发请求
 # 注意：由于Uvicorn对h2和h2c的支持存在问题，本地部署的使用了fastapi的大模型建议通过Hypercorn运行，否则可能导致非流式请求报错
 # 2.0.0及以上版本只会在baseUrl后补上/chat/completions，2.0.0以下版本会补上/v1/chat/completions
+# apiKey支持传入多个，用半角逗号（,）隔开，系统会对相同的模型名称model进行汇总并进行轮询
 openai:
   models:
     - apiKey: "my key"
       model: "my model"
       baseUrl: "https://api.openai.com/v1"
-    - apiKey: "my key"
+    - apiKey: "key1,key2"
       model: "my model"
       baseUrl: "https://dashscope.aliyuncs.com/compatible-mode/v1"
 # 智谱清言GLM4
