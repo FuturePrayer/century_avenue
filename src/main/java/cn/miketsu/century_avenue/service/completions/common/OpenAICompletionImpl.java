@@ -1,8 +1,9 @@
-package cn.miketsu.century_avenue.service.common;
+package cn.miketsu.century_avenue.service.completions.common;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig.OpenAI.Model;
-import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.service.completions.LlmService;
+import cn.miketsu.century_avenue.util.ConstantUtil;
 import cn.miketsu.century_avenue.util.OpenAiUtil;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import reactor.core.publisher.Flux;
 
-import java.util.Collection;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -22,13 +23,36 @@ import java.util.stream.Collectors;
  * @since 1.0.2
  */
 @Service
-public class OpenAIApiService implements LlmService {
+public class OpenAICompletionImpl implements LlmService {
 
     private final CenturyAvenueConfig centuryAvenueConfig;
 
+    /**
+     * 负载均衡（轮询）
+     * 
+     * @since 2.0.0-release
+     */
+    private final Map<String, Queue<Model>> modelsQueue;
+
     @Autowired
-    public OpenAIApiService(CenturyAvenueConfig centuryAvenueConfig) {
+    public OpenAICompletionImpl(CenturyAvenueConfig centuryAvenueConfig) {
         this.centuryAvenueConfig = centuryAvenueConfig;
+        this.modelsQueue = new LinkedHashMap<>();
+
+        Map<String, List<Model>> map = centuryAvenueConfig.openai().models().stream().collect(Collectors.groupingBy(Model::model));
+        for (Map.Entry<String, List<Model>> entry : map.entrySet()) {
+            Queue<Model> queue = new LinkedList<>();
+            for (Model model : entry.getValue()) {
+                if (model.apiKey().contains(ConstantUtil.LOAD_BALANCING_SEPARATOR)) {
+                    for (String apiKey : model.apiKey().split(ConstantUtil.LOAD_BALANCING_SEPARATOR)) {
+                        queue.offer(new Model(apiKey, model.model(), model.baseUrl()));
+                    }
+                } else {
+                    queue.offer(model);
+                }
+            }
+            modelsQueue.put(entry.getKey(), queue);
+        }
     }
 
     @Override
@@ -83,6 +107,9 @@ public class OpenAIApiService implements LlmService {
     }
 
     private Model getCfg(String model) {
-        return centuryAvenueConfig.openai().models().stream().filter(cfg -> cfg.model().equals(model)).findFirst().orElse(null);
+        Queue<Model> modelQueue = modelsQueue.get(model);
+        Model poll = modelQueue.remove();
+        modelQueue.offer(poll);
+        return poll;
     }
 }

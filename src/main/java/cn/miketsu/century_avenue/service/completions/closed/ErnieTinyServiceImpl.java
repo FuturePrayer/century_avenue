@@ -1,4 +1,4 @@
-package cn.miketsu.century_avenue.service.closed;
+package cn.miketsu.century_avenue.service.completions.closed;
 
 import cn.miketsu.century_avenue.config.CenturyAvenueConfig;
 import cn.miketsu.century_avenue.function.ErnieConvert;
@@ -20,32 +20,32 @@ import reactor.core.publisher.Sinks;
 import java.util.*;
 
 /**
- * ERNIE-Lite-8K-0308
+ * ERNIE-Tiny-8K
  *
  * @author sihuangwlp
  * @date 2024/5/26
  * @since 0.0.4-SNAPSHOT
  */
 @Service
-public class ErnieLiteServiceImpl extends ErnieConvert {
+public class ErnieTinyServiceImpl extends ErnieConvert {
 
     @Autowired
     private CenturyAvenueConfig centuryAvenueConfig;
 
     private static final String authUrl = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=%s&client_secret=%s";
 
-    private static final String baseUrl = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie-lite-8k?access_token=%s";
+    private static final String baseUrl = "https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie-tiny-8k?access_token=%s";
 
     @Override
     public String model() {
-        return "ernie-lite-8k";
+        return "ernie-tiny-8k";
     }
 
     @Override
     public Boolean available() {
-        return centuryAvenueConfig.ernieLite8k() != null
-                && StringUtil.isNotBlank(centuryAvenueConfig.ernieLite8k().apiKey())
-                && StringUtil.isNotBlank(centuryAvenueConfig.ernieLite8k().secretKey());
+        return centuryAvenueConfig.ernieTiny8k() != null
+                && StringUtil.isNotBlank(centuryAvenueConfig.ernieTiny8k().apiKey())
+                && StringUtil.isNotBlank(centuryAvenueConfig.ernieTiny8k().secretKey());
     }
 
     @Override
@@ -60,7 +60,7 @@ public class ErnieLiteServiceImpl extends ErnieConvert {
         WebClient.builder()
                 .build()
                 .post()
-                .uri(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernieLite8k().apiKey(), centuryAvenueConfig.ernieLite8k().secretKey())))
+                .uri(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernieTiny8k().apiKey(), centuryAvenueConfig.ernieTiny8k().secretKey())))
                 .header("Content-Type", "application/json")
                 .body(Mono.just(convertReq(chatRequest)), ErnieReq.class)
                 .retrieve()
@@ -98,7 +98,7 @@ public class ErnieLiteServiceImpl extends ErnieConvert {
 
         return Flux.just(
                 HttpUtil.post()
-                        .url(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernieLite8k().apiKey(), centuryAvenueConfig.ernieLite8k().secretKey())))
+                        .url(String.format(baseUrl, getAccessToken(authUrl, centuryAvenueConfig.ernieTiny8k().apiKey(), centuryAvenueConfig.ernieTiny8k().secretKey())))
                         .header("Content-Type", "application/json")
                         .body(JacksonUtil.tryParse(convertReq(chatRequest)))
                         .resp(ErnieResp.class, this::convertResp)

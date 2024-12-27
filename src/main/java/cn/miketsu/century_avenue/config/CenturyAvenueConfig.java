@@ -44,8 +44,8 @@ public record CenturyAvenueConfig(@JsonProperty("api-key") String apiKey,
     }
 
     public record SparkCfg(@JsonProperty("app_id") String appId,
-                            @JsonProperty("api-secret") String apiSecret,
-                            @JsonProperty("api-key") String apiKey) {
+                           @JsonProperty("api-secret") String apiSecret,
+                           @JsonProperty("api-key") String apiKey) {
     }
 
     public record QwenLong(@JsonProperty("api-key") String apiKey) {
@@ -76,7 +76,21 @@ public record CenturyAvenueConfig(@JsonProperty("api-key") String apiKey,
                                    @JsonProperty("secret-key") String secretKey) {
     }
 
-    public record CenturyAvenue(@JsonProperty("model-mapping") Map<String, String> modelMapping) {
+    public record CenturyAvenue(@JsonProperty("model-mapping") Map<String, String> modelMapping,
+                                Embedding embedding) {
+
+        public record Embedding(List<OpenAI> openai,
+                                List<Zhipu> zhipu) {
+
+            public record OpenAI(@JsonProperty("api-key") String apiKey,
+                                 String model,
+                                 String baseUrl) {
+            }
+            
+            public record Zhipu(@JsonProperty("api-key") String apiKey,
+                                String model) {
+            }
+        }
     }
 
 }

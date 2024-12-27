@@ -3,7 +3,7 @@ package cn.miketsu.century_avenue.function;
 import cn.miketsu.century_avenue.record.ErnieAuthResp;
 import cn.miketsu.century_avenue.record.ErnieReq;
 import cn.miketsu.century_avenue.record.ErnieResp;
-import cn.miketsu.century_avenue.service.LlmService;
+import cn.miketsu.century_avenue.service.completions.LlmService;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestClient;
